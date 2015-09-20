@@ -8,6 +8,8 @@
 #ifndef NEURON_CUH_
 #define NEURON_CUH_
 
+#include "layer.cuh"
+
 namespace layer {
 
 class Neuron : public Layer{

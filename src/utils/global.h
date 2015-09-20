@@ -8,10 +8,13 @@
 #ifndef GLOBAL_H_
 #define GLOBAL_H_
 
+#include "cublas_v2.h"
+#include "cudnn.h"
+
 namespace global {
 
-cudnnHandle_t cudnnHandle;
-cublasHandle_t cublasHandle;
+extern cudnnHandle_t cudnnHandle;
+extern cublasHandle_t cublasHandle;
 
 } /* namespace global */
 #endif /* GLOBAL_H_ */

@@ -9,6 +9,7 @@
 
 namespace global {
 
-
+cudnnHandle_t cudnnHandle;
+cublasHandle_t cublasHandle;
 
 } /* namespace global */

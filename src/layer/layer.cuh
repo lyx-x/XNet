@@ -16,8 +16,10 @@
 #include <cublas_v2.h>
 #include <cudnn.h>
 
-#include "global.h"
-#include "utils.h"
+#include "../utils/global.h"
+#include "../utils/set_value.cuh"
+#include "../utils/print.cuh"
+#include "../utils/utils.h"
 
 namespace layer {
 
@@ -25,12 +27,13 @@ class Layer {
 public:
 	Layer();
 	virtual ~Layer();
+
 	virtual void forward() = 0;
 	virtual void backward() = 0;
 	virtual void update() = 0;
 
-	Layer& prev;
-	Layer& next;
+	Layer* prev;
+	Layer* next;
 	cudnnTensorDescriptor_t t_data;
 	float* data;
 	float* diff;

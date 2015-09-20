@@ -17,11 +17,11 @@ private:
 	cudnnFilterDescriptor_t filter;
 	cudnnConvolutionDescriptor_t descriptor;
 	cudnnTensorDescriptor_t t_bias;
-	cudnnConvolutionFwdAlgo_t& algo;
+	cudnnConvolutionFwdAlgo_t algo;
 	size_t workspace_size;
 	void* workspace;
 public:
-	Convolution(Layer& _prev, int n ,int c, int h, int w, int kernel);
+	Convolution(Layer* _prev, int n ,int c, int h, int w, int kernel);
 	virtual ~Convolution();
 	void forward();
 	void backward();
