@@ -1,5 +1,5 @@
 /*
- * convolution.cpp
+ * convolution.cu
  *
  *  Created on: Sep 20, 2015
  *      Author: lyx
@@ -25,8 +25,10 @@ Convolution::Convolution(Layer& _prev, int n ,int c, int h, int w, int kernel) :
 			&_tmp, &_tmp, &_tmp));
 	callCudnn(cudnnSetFilter4dDescriptor(filter, CUDNN_DATA_FLOAT,
 			c, _c, kernel, kernel));
-	callCuda(cudaMalloc(param, sizeof(float) * _c * c * kernel * kernel));
-	callCuda(cudaMalloc(gradient, sizeof(float) * _c * c * kernel * kernel));
+	int param_size =  _c * c * kernel * kernel;
+	callCuda(cudaMalloc(param, sizeof(float) * param_size));
+	callCuda(cudaMalloc(gradient, sizeof(float) * param_size));
+	utils::setGpuNormalValue(param, param_size);
 
 	callCudnn(cudnnCreateTensorDescriptor(&t_data));
 	callCudnn(cudnnSetTensor4dDescriptor(t_data, CUDNN_TENSOR_NCHW,	CUDNN_DATA_FLOAT,
@@ -38,6 +40,7 @@ Convolution::Convolution(Layer& _prev, int n ,int c, int h, int w, int kernel) :
 	callCudnn(cudnnSetTensor4dDescriptor(t_bias, CUDNN_TENSOR_NCHW,	CUDNN_DATA_FLOAT,
 			1, c, 1, 1));
 	callCuda(cudaMalloc(param_bias, sizeof(float) * c));
+	utils::setGpuNormalValue(param_bias, c);
 
 	callCudnn(cudnnGetConvolutionForwardAlgorithm(cudnnHandle, prev.t_data, filter,
 			descriptor, t_data,	CUDNN_CONVOLUTION_FWD_PREFER_FASTEST, 0, &algo));
@@ -55,6 +58,18 @@ Convolution::~Convolution() {
 	callCuda(cudaFree(param));
 	callCuda(cudaFree(param_bias));
 	callCuda(cudaFree(gradient));
+}
+
+void Convolution::forward() {
+
+}
+
+void Convolution::backward() {
+
+}
+
+void Convolution::update() {
+
 }
 
 }

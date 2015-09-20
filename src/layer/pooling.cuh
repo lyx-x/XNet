@@ -10,10 +10,15 @@
 
 namespace layer {
 
-class Pooling {
+class Pooling : public Layer {
+private:
+	cudnnPoolingDescriptor_t descriptor;
 public:
-	Pooling();
+	Pooling(Layer& _prev, int size, int stride);
 	virtual ~Pooling();
+	void forward() = 0;
+	void backward();
+	void update();
 };
 
 } /* namespace layer */

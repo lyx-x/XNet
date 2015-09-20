@@ -24,7 +24,15 @@
 #define callCudnn(status) do {                                         \
     std::stringstream _error;                                          \
     if (status != CUDNN_STATUS_SUCCESS) {                              \
-    	_error << "CUDNN failure: " << cudnnGetErrorString(status);    \
+    	_error << "CuDNN failure: " << cudnnGetErrorString(status);    \
+    	FatalError(_error.str());                                      \
+    }                                                                  \
+} while(0)
+
+#define callCurand(status) do {                                        \
+    std::stringstream _error;                                          \
+    if (status != CURAND_STATUS_SUCCESS) {                             \
+    	_error << "CuRAND failure: " << status;   					   \
     	FatalError(_error.str());                                      \
     }                                                                  \
 } while(0)
