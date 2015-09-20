@@ -25,11 +25,14 @@ Neuron::Neuron(Layer* _prev, int _output_size) {
 	callCudnn(cudnnSetTensor4dDescriptor(t_data, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT,
 			_n, output_size, 1, 1));
 	callCuda(cudaMalloc(&data, sizeof(float) * _n * output_size));
+	callCuda(cudaMalloc(&tmp_data, sizeof(float) * _n * output_size));
 	callCuda(cudaMalloc(&diff, sizeof(float) * _n * output_size));
 
 	callCuda(cudaMalloc(&param, sizeof(float) * _c * output_size));
 	callCuda(cudaMalloc(&param_bias, sizeof(float) * output_size));
 	callCuda(cudaMalloc(&gradient, sizeof(float) * _c * output_size));
+	utils::setGpuNormalValue(param, _c * output_size);
+	utils::setGpuNormalValue(param_bias, output_size);
 
 	callCuda(cudaMalloc(&one, sizeof(float) * batch));
 
@@ -38,6 +41,7 @@ Neuron::Neuron(Layer* _prev, int _output_size) {
 Neuron::~Neuron() {
 	callCudnn(cudnnDestroyTensorDescriptor(t_data));
 	callCuda(cudaFree(data));
+	callCuda(cudaFree(tmp_data));
 	callCuda(cudaFree(diff));
 	callCuda(cudaFree(param));
 	callCuda(cudaFree(param_bias));
@@ -49,13 +53,15 @@ void Neuron::forward() {
 	float a = 1;
 	float b = 0;
 	callCuda(cublasSgemm(cublasHandle, CUBLAS_OP_T, CUBLAS_OP_N, output_size, batch,
-			input_size,	&a, param, input_size, prev->data, input_size, &b, data,
+			input_size,	&a, param, input_size, prev->data, input_size, &b, tmp_data,
 			output_size));
 	callCuda(cublasSgemm(cublasHandle, CUBLAS_OP_N, CUBLAS_OP_N, output_size, batch,
-			1, &a, param_bias, output_size,	one, 1,	&a,	data, output_size));
+			1, &a, param_bias, output_size,	one, 1,	&a,	tmp_data, output_size));
+	forward_activation();
 }
 
 void Neuron::backward() {
+	backward_activation();
 
 }
 

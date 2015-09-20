@@ -12,8 +12,9 @@
 
 namespace layer {
 
-class Neuron : public Layer{
-private:
+class Neuron : public Layer {
+protected:
+	float* tmp_data;
 	int input_size;
 	int output_size;
 	float* one;
@@ -21,7 +22,9 @@ public:
 	Neuron(Layer* _prev, int _output_size);
 	virtual ~Neuron();
 	void forward();
+	virtual void forward_activation() = 0;
 	void backward();
+	virtual void backward_activation() = 0;
 	void update();
 };
 
