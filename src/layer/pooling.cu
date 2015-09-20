@@ -1,5 +1,5 @@
 /*
- * pooling.cpp
+ * pooling.cu
  *
  *  Created on: Sep 20, 2015
  *      Author: lyx
@@ -17,6 +17,7 @@ Pooling::Pooling(Layer& _prev, int size, int stride) {
 			size, size,	0, 0, stride, stride));
 
 	int _n, _c, _h, _w, _tmp;
+	batch = _n;
 	cudnnDataType_t _t;
 	callCudnn(cudnnGetTensor4dDescriptor(prev.t_data, &_t, &_n, &_c, &_h, &_w, &_tmp,
 			&_tmp, &_tmp, &_tmp));
@@ -35,7 +36,10 @@ Pooling::~Pooling() {
 }
 
 void Pooling::forward() {
-
+	float a = 0;
+	float b = 0;
+	callCudnn(cudnnPoolingForward(cudnnHandle, descriptor, &a, prev.t_data,
+			prev.data, &b, t_data, data));
 }
 
 void Pooling::backward() {

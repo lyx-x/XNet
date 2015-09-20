@@ -16,6 +16,8 @@ Convolution::Convolution(Layer& _prev, int n ,int c, int h, int w, int kernel) :
 	prev = _prev;
 	_prev.next = this;
 
+	batch = n;
+
 	callCudnn(cudnnSetConvolution2dDescriptor(descriptor, 0, 0,	1, 1, 1, 1,
 			CUDNN_CROSS_CORRELATION));
 
@@ -46,6 +48,7 @@ Convolution::Convolution(Layer& _prev, int n ,int c, int h, int w, int kernel) :
 			descriptor, t_data,	CUDNN_CONVOLUTION_FWD_PREFER_FASTEST, 0, &algo));
 	callCudnn(cudnnGetConvolutionForwardWorkspaceSize(cudnnHandle,
 			prev.t_data, filter, descriptor, t_data, algo, &workspace_size));
+	callCuda(cudaMalloc(workspace, workspace_size));
 }
 
 Convolution::~Convolution() {
@@ -61,7 +64,12 @@ Convolution::~Convolution() {
 }
 
 void Convolution::forward() {
-
+	float a = 1;
+	float b = 0;
+	callCudnn(cudnnConvolutionForward(cudnnHandle, &a, prev.t_data,	prev.data, filter,
+			param, descriptor, algo, workspace, workspace_size, &b, t_data, data));
+	callCudnn(cudnnAddTensor(cudnnHandle, CUDNN_ADD_SAME_C, &a, t_bias,	param_bias,
+			&a, t_data, data));
 }
 
 void Convolution::backward() {

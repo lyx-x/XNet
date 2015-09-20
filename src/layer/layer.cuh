@@ -37,6 +37,7 @@ public:
 	float* param;
 	float* param_bias;
 	float* gradient;
+	int batch;
 };
 
 } /* namespace layer */

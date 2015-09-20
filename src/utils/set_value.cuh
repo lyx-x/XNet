@@ -18,8 +18,10 @@
 
 namespace utils {
 
+void setGpuValue(float* x, int n, float val);
 void setGpuNormalValue(float* x, int n, float mean, float stddev);
 void setGpuNormalValue(float* x, int n);
+
 }
 
 #endif /* SET_VALUE_CUH_ */

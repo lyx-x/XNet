@@ -5,8 +5,8 @@
  *      Author: lyx
  */
 
-#ifndef PRINT
-#define PRINT
+#ifndef PRINT_CUH_
+#define PRINT_CUH_
 
 #include <iostream>
 #include <iomanip>
@@ -21,4 +21,4 @@ void printGpuMatrix(float* d_m, int n, int r, int c = 1, int precision = 2);
 
 }
 
-#endif /* PRINT */
+#endif /* PRINT_CUH_ */
