@@ -23,5 +23,9 @@ void ReLU::forward_activation() {
 }
 
 void ReLU::backward_activation() {
-
+	float a = 1;
+	float b = 0;
+	callCudnn(cudnnActivationBackward(cudnnHandle, CUDNN_ACTIVATION_RELU, &a,
+			t_data, data, t_data, next->diff,
+			t_data, tmp_data, &b, t_data, tmp_diff));
 }

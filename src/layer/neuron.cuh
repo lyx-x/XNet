@@ -15,6 +15,7 @@ namespace layer {
 class Neuron : public Layer {
 protected:
 	float* tmp_data;
+	float* tmp_diff;
 	int input_size;
 	int output_size;
 	float* one;
