@@ -23,7 +23,11 @@ void Softmax::forward_activation() {
 }
 
 void Softmax::backward_activation() {
-
+	float a = 1;
+	float b = 0;
+	callCudnn(cudnnSoftmaxBackward(cudnnHandle, CUDNN_SOFTMAX_ACCURATE,
+			CUDNN_SOFTMAX_MODE_CHANNEL,	&a, t_data, data, t_data, next->diff,
+			&b, t_data, tmp_diff));
 }
 
 }

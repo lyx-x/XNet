@@ -41,7 +41,7 @@ Neuron::Neuron(Layer* _prev, int _output_size) {
 	utils::setGpuNormalValue(param_bias, param_bias_size);
 
 	callCuda(cudaMalloc(&one, sizeof(float) * batch));
-	utils::setGpuValue(ont, batch, 1);
+	utils::setGpuValue(one, batch, 1);
 }
 
 Neuron::~Neuron() {

@@ -21,7 +21,7 @@ Input::Input(int n, int c, int h, int w) : Layer() {
 }
 
 Input::~Input() {
-	callCudnn(cudnnDestroyTensorDescriptor(&t_data));
+	callCudnn(cudnnDestroyTensorDescriptor(t_data));
 	callCuda(cudaFree(data));
 }
 

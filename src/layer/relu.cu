@@ -29,3 +29,5 @@ void ReLU::backward_activation() {
 			t_data, data, t_data, next->diff,
 			t_data, tmp_data, &b, t_data, tmp_diff));
 }
+
+}

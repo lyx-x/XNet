@@ -49,7 +49,7 @@ void Pooling::forward() {
 void Pooling::backward() {
 	float a = 1;
 	float b = 0;
-	checkCUDNN(cudnnPoolingBackward(cudnnHandle, descriptor, &a,
+	callCudnn(cudnnPoolingBackward(cudnnHandle, descriptor, &a,
 			t_data, data, t_data, next->diff,
 			prev->t_data, prev->data, &b, prev->t_data, diff));
 }

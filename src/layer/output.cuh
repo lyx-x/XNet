@@ -15,8 +15,9 @@ namespace layer {
 class Output: public Layer {
 private:
 	float* label;
+	int labels;
 public:
-	Output(Layer* _prev, float* _label, int n);
+	Output(Layer* _prev, float* _label, int _labels, int _batch);
 	virtual ~Output();
 	void forward();
 	void backward();
