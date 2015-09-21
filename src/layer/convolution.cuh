@@ -25,7 +25,7 @@ public:
 	virtual ~Convolution();
 	void forward();
 	void backward();
-	void update();
+	void update(float alpha);
 };
 
 } /* namespace layer */

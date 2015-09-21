@@ -29,7 +29,7 @@ Convolution::Convolution(Layer* _prev, int n ,int c, int h, int w, int kernel) :
 	callCudnn(cudnnCreateFilterDescriptor(&filter));
 	callCudnn(cudnnSetFilter4dDescriptor(filter, CUDNN_DATA_FLOAT,
 			c, _c, kernel, kernel));
-	int param_size =  _c * c * kernel * kernel;
+	param_size =  _c * c * kernel * kernel;
 	callCuda(cudaMalloc(&param, sizeof(float) * param_size));
 	callCuda(cudaMalloc(&gradient, sizeof(float) * param_size));
 	utils::setGpuNormalValue(param, param_size);
@@ -37,14 +37,17 @@ Convolution::Convolution(Layer* _prev, int n ,int c, int h, int w, int kernel) :
 	callCudnn(cudnnCreateTensorDescriptor(&t_data));
 	callCudnn(cudnnSetTensor4dDescriptor(t_data, CUDNN_TENSOR_NCHW,	CUDNN_DATA_FLOAT,
 			n, c, h, w));
-	callCuda(cudaMalloc(&data, sizeof(float) * n * c * h * w));
-	callCuda(cudaMalloc(&diff, sizeof(float) * n * c * h * w));
+	data_size = n * c * h * w;
+	callCuda(cudaMalloc(&data, sizeof(float) * data_size));
+	callCuda(cudaMalloc(&diff, sizeof(float) * prev->data_size));
 
 	callCudnn(cudnnCreateTensorDescriptor(&t_bias));
 	callCudnn(cudnnSetTensor4dDescriptor(t_bias, CUDNN_TENSOR_NCHW,	CUDNN_DATA_FLOAT,
 			1, c, 1, 1));
-	callCuda(cudaMalloc(&param_bias, sizeof(float) * c));
-	utils::setGpuNormalValue(param_bias, c);
+	param_bias_size =  c;
+	callCuda(cudaMalloc(&param_bias, sizeof(float) * param_bias_size));
+	callCuda(cudaMalloc(&gradient_bias, sizeof(float) * param_bias_size));
+	utils::setGpuNormalValue(param_bias, param_bias_size);
 
 	callCudnn(cudnnGetConvolutionForwardAlgorithm(cudnnHandle, prev->t_data, filter,
 			descriptor, t_data,	CUDNN_CONVOLUTION_FWD_PREFER_FASTEST, 0, &algo));
@@ -63,6 +66,7 @@ Convolution::~Convolution() {
 	callCuda(cudaFree(param));
 	callCuda(cudaFree(param_bias));
 	callCuda(cudaFree(gradient));
+	callCuda(cudaFree(gradient_bias));
 }
 
 void Convolution::forward() {
@@ -75,11 +79,20 @@ void Convolution::forward() {
 }
 
 void Convolution::backward() {
-
+	float a = 1;
+	float b = 0;
+	callCudnn(cudnnConvolutionBackwardBias(cudnnHandle, &a, t_data,
+			next->diff, &b, t_bias, gradient_bias));
+	callCudnn(cudnnConvolutionBackwardFilter(cudnnHandle, &a, prev->t_data,
+			prev->data, t_data, next->diff, descriptor, &b, filter, gradient));
+	callCudnn(cudnnConvolutionBackwardData(cudnnHandle, &a, filter,
+			param, t_data, next->diff, descriptor, &b, prev->t_data, diff));
 }
 
-void Convolution::update() {
-
+void Convolution::update(float alpha) {
+	callCuda(cublasSaxpy(cublasHandle, param_size, &alpha, gradient, 1, param, 1));
+	callCuda(cublasSaxpy(cublasHandle, param_bias_size,	&alpha,
+			gradient_bias, 1, param_bias, 1));
 }
 
 }

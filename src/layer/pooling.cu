@@ -27,9 +27,9 @@ Pooling::Pooling(Layer* _prev, int size, int stride) {
 	callCudnn(cudnnCreateTensorDescriptor(&t_data));
 	callCudnn(cudnnSetTensor4dDescriptor(t_data, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT,
 			_n, _c, _h / stride, _w / stride));
-	int data_size = _n * _c * (_h / stride) * (_w / stride);
+	data_size = _n * _c * (_h / stride) * (_w / stride);
 	callCuda(cudaMalloc(&data, sizeof(float) * data_size));
-	callCuda(cudaMalloc(&diff, sizeof(float) * data_size));
+	callCuda(cudaMalloc(&diff, sizeof(float) * prev->data_size));
 }
 
 Pooling::~Pooling() {
@@ -40,17 +40,21 @@ Pooling::~Pooling() {
 }
 
 void Pooling::forward() {
-	float a = 0;
+	float a = 1;
 	float b = 0;
 	callCudnn(cudnnPoolingForward(cudnnHandle, descriptor, &a, prev->t_data,
 			prev->data, &b, t_data, data));
 }
 
 void Pooling::backward() {
-
+	float a = 1;
+	float b = 0;
+	checkCUDNN(cudnnPoolingBackward(cudnnHandle, descriptor, &a,
+			t_data, data, t_data, next->diff,
+			prev->t_data, prev->data, &b, prev->t_data, diff));
 }
 
-void Pooling::update() {
+void Pooling::update(float alpha) {
 
 }
 
