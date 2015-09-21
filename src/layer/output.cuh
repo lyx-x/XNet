@@ -13,9 +13,14 @@
 namespace layer {
 
 class Output: public Layer {
+private:
+	float* label;
 public:
-	Output();
+	Output(Layer* _prev, float* _label, int n);
 	virtual ~Output();
+	void forward();
+	void backward();
+	void update();
 };
 
 } /* namespace layer */

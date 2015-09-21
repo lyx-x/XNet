@@ -15,6 +15,7 @@ Pooling::Pooling(Layer* _prev, int size, int stride) {
 	prev = _prev;
 	prev->next = this;
 
+	callCudnn(cudnnCreatePoolingDescriptor(&descriptor));
 	callCudnn(cudnnSetPooling2dDescriptor(descriptor, CUDNN_POOLING_MAX,
 			size, size,	0, 0, stride, stride));
 
@@ -23,6 +24,7 @@ Pooling::Pooling(Layer* _prev, int size, int stride) {
 	callCudnn(cudnnGetTensor4dDescriptor(prev->t_data, &_t, &_n, &_c, &_h, &_w, &_tmp,
 			&_tmp, &_tmp, &_tmp));
 	batch = _n;
+	callCudnn(cudnnCreateTensorDescriptor(&t_data));
 	callCudnn(cudnnSetTensor4dDescriptor(t_data, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT,
 			_n, _c, _h / stride, _w / stride));
 	int data_size = _n * _c * (_h / stride) * (_w / stride);

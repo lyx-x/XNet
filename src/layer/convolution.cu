@@ -18,6 +18,7 @@ Convolution::Convolution(Layer* _prev, int n ,int c, int h, int w, int kernel) :
 
 	batch = n;
 
+	callCudnn(cudnnCreateConvolutionDescriptor(&descriptor));
 	callCudnn(cudnnSetConvolution2dDescriptor(descriptor, 0, 0,	1, 1, 1, 1,
 			CUDNN_CROSS_CORRELATION));
 
@@ -25,6 +26,7 @@ Convolution::Convolution(Layer* _prev, int n ,int c, int h, int w, int kernel) :
 	cudnnDataType_t _t;
 	callCudnn(cudnnGetTensor4dDescriptor(prev->t_data, &_t, &_n, &_c, &_h, &_w, &_tmp,
 			&_tmp, &_tmp, &_tmp));
+	callCudnn(cudnnCreateFilterDescriptor(&filter));
 	callCudnn(cudnnSetFilter4dDescriptor(filter, CUDNN_DATA_FLOAT,
 			c, _c, kernel, kernel));
 	int param_size =  _c * c * kernel * kernel;

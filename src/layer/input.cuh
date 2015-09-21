@@ -14,8 +14,11 @@ namespace layer {
 
 class Input: public Layer {
 public:
-	Input();
+	Input(int n, int c, int h, int w);
 	virtual ~Input();
+	void forward();
+	void backward();
+	void update();
 };
 
 } /* namespace layer */

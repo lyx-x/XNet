@@ -22,6 +22,7 @@ Neuron::Neuron(Layer* _prev, int _output_size) {
 	batch = _n;
 	input_size = _c;
 	output_size = _output_size;
+	callCudnn(cudnnCreateTensorDescriptor(&t_data));
 	callCudnn(cudnnSetTensor4dDescriptor(t_data, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT,
 			_n, output_size, 1, 1));
 	callCuda(cudaMalloc(&data, sizeof(float) * _n * output_size));
