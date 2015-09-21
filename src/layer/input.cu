@@ -16,7 +16,8 @@ Input::Input(int n, int c, int h, int w) : Layer() {
 	callCudnn(cudnnCreateTensorDescriptor(&t_data));
 	callCudnn(cudnnSetTensor4dDescriptor(t_data, CUDNN_TENSOR_NCHW,	CUDNN_DATA_FLOAT,
 			n, c, h, w));
-	callCuda(cudaMalloc(&data, sizeof(float) * n * c * h * w));
+	data_size = n * c * h * w;
+	callCuda(cudaMalloc(&data, sizeof(float) * data_size));
 }
 
 Input::~Input() {
@@ -32,7 +33,7 @@ void Input::backward() {
 	// nothing
 }
 
-void Input::update() {
+void Input::update(float alpha) {
 	// nothing
 }
 

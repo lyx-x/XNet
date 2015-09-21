@@ -30,16 +30,20 @@ public:
 
 	virtual void forward() = 0;
 	virtual void backward() = 0;
-	virtual void update() = 0;
+	virtual void update(float alpha) = 0;
 
 	Layer* prev;
 	Layer* next;
 	cudnnTensorDescriptor_t t_data;
 	float* data;
+	int data_size;
 	float* diff;
 	float* param;
+	int param_size;
 	float* param_bias;
+	int param_bias_size;
 	float* gradient;
+	float* gradient_bias;
 	int batch;
 };
 

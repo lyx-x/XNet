@@ -25,7 +25,7 @@ public:
 	virtual void forward_activation() = 0;
 	void backward();
 	virtual void backward_activation() = 0;
-	void update();
+	void update(float alpha);
 };
 
 } /* namespace layer */

@@ -19,8 +19,9 @@ Output::Output(Layer* _prev, float* _label, int n) : Layer() {
 	callCudnn(cudnnCreateTensorDescriptor(&t_data));
 	callCudnn(cudnnSetTensor4dDescriptor(t_data, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT,
 			n, 1, 1, 1));
-	callCuda(cudaMalloc(&data, sizeof(float) * n));
-	callCuda(cudaMalloc(&label, sizeof(float) * n));
+	data_size = n;
+	callCuda(cudaMalloc(&data, sizeof(float) * data_size));
+	callCuda(cudaMalloc(&label, sizeof(float) * data_size));
 	callCuda(cudaMemcpy(label, _label, n, cudaMemcpyHostToDevice));
 }
 
@@ -38,7 +39,7 @@ void Output::backward() {
 
 }
 
-void Output::update() {
+void Output::update(float alpha) {
 	// nothing
 }
 

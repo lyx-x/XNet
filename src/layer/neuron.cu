@@ -25,15 +25,19 @@ Neuron::Neuron(Layer* _prev, int _output_size) {
 	callCudnn(cudnnCreateTensorDescriptor(&t_data));
 	callCudnn(cudnnSetTensor4dDescriptor(t_data, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT,
 			_n, output_size, 1, 1));
-	callCuda(cudaMalloc(&data, sizeof(float) * _n * output_size));
-	callCuda(cudaMalloc(&tmp_data, sizeof(float) * _n * output_size));
-	callCuda(cudaMalloc(&diff, sizeof(float) * _n * output_size));
+	data_size = _n * output_size;
+	callCuda(cudaMalloc(&data, sizeof(float) * data_size));
+	callCuda(cudaMalloc(&tmp_data, sizeof(float) * data_size));
+	callCuda(cudaMalloc(&diff, sizeof(float) * prev->data_size));
 
-	callCuda(cudaMalloc(&param, sizeof(float) * _c * output_size));
-	callCuda(cudaMalloc(&param_bias, sizeof(float) * output_size));
-	callCuda(cudaMalloc(&gradient, sizeof(float) * _c * output_size));
-	utils::setGpuNormalValue(param, _c * output_size);
-	utils::setGpuNormalValue(param_bias, output_size);
+	param_size = _c * output_size;
+	param_bias_size = output_size;
+	callCuda(cudaMalloc(&param, sizeof(float) * param_size));
+	callCuda(cudaMalloc(&param_bias, sizeof(float) * param_bias_size));
+	callCuda(cudaMalloc(&gradient, sizeof(float) * param_size));
+	callCuda(cudaMalloc(&gradient_bias, sizeof(float) * param_bias_size));
+	utils::setGpuNormalValue(param, param_size);
+	utils::setGpuNormalValue(param_bias, param_bias_size);
 
 	callCuda(cudaMalloc(&one, sizeof(float) * batch));
 
@@ -47,6 +51,7 @@ Neuron::~Neuron() {
 	callCuda(cudaFree(param));
 	callCuda(cudaFree(param_bias));
 	callCuda(cudaFree(gradient));
+	callCuda(cudaFree(gradient_bias));
 	callCuda(cudaFree(one));
 }
 
@@ -66,8 +71,10 @@ void Neuron::backward() {
 
 }
 
-void Neuron::update() {
-
+void Neuron::update(float alpha) {
+	callCuda(cublasSaxpy(cublasHandle, param_size, &alpha, gradient, 1, param, 1));
+	callCuda(cublasSaxpy(cublasHandle, param_bias_size,	&alpha,
+			gradient_bias, 1, param_bias, 1));
 }
 
 }
