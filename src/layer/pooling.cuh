@@ -18,7 +18,7 @@ private:
 public:
 	Pooling(Layer* _prev, int size, int stride);
 	virtual ~Pooling();
-	void forward() = 0;
+	void forward();
 	void backward();
 	void update(float alpha);
 };

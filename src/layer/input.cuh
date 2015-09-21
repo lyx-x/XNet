@@ -14,7 +14,7 @@ namespace layer {
 
 class Input: public Layer {
 public:
-	Input(int n, int c, int h, int w);
+	Input(int n, int c, int h, int w, float* _data);
 	virtual ~Input();
 	void forward();
 	void backward();
