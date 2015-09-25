@@ -11,7 +11,7 @@ using namespace global;
 
 namespace layer {
 
-__global__ void softmaxLoss(const float *label, int labels, int batch, float *diff)
+__global__ void softmaxLoss(const float *label, int label_dim, int batch, float *diff)
 {
 	int idx = blockIdx.x * blockDim.x + threadIdx.x;
 	if (idx >= batch)
@@ -19,22 +19,23 @@ __global__ void softmaxLoss(const float *label, int labels, int batch, float *di
 
 	const int label_value = static_cast<int>(label[idx]);
 
-	diff[idx * labels + label_value] -= 1.0f;
+	diff[idx * label_dim + label_value] -= 1.0f;
 }
 
-Output::Output(Layer* _prev, float* _label, int _labels, int _batch) : Layer() {
+Output::Output(Layer* _prev, float* _label, int _label_dim, int _batch) : Layer() {
 	prev = _prev;
 	prev->next = this;
 
 	batch = _batch;
-	labels = _labels;
+	label_dim = _label_dim;
 	callCudnn(cudnnCreateTensorDescriptor(&t_data));
 	callCudnn(cudnnSetTensor4dDescriptor(t_data, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT,
 			batch, 1, 1, 1));
 	data_size = batch;
 	callCuda(cudaMalloc(&data, sizeof(float) * data_size));
-	callCuda(cudaMalloc(&label, sizeof(float) * data_size));
-	callCuda(cudaMemcpy(label, _label, batch, cudaMemcpyHostToDevice));
+	//callCuda(cudaMalloc(&label, sizeof(float) * data_size));
+	//callCuda(cudaMemcpy(label, _label, batch, cudaMemcpyHostToDevice));
+	label = _label;
 
 	callCuda(cudaMalloc(&diff, sizeof(float) * prev->data_size));
 }
@@ -42,7 +43,8 @@ Output::Output(Layer* _prev, float* _label, int _labels, int _batch) : Layer() {
 Output::~Output() {
 	callCudnn(cudnnDestroyTensorDescriptor(t_data));
 	callCuda(cudaFree(data));
-	callCuda(cudaFree(label));
+	//callCuda(cudaFree(label));
+	label = NULL;
 	callCuda(cudaFree(diff));
 }
 
@@ -51,7 +53,7 @@ void Output::forward() {
 }
 
 void Output::backward() {
-	softmaxLoss<<< (batch + 127) / 128, 128>>> (label, labels, batch, diff);
+	softmaxLoss<<< (batch + 127) / 128, 128>>> (label, label_dim, batch, diff);
 }
 
 void Output::update(float alpha) {

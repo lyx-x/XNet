@@ -10,6 +10,7 @@
 
 #include <iostream>
 #include <vector>
+#include <typeinfo>
 
 #include "../layer/layer.cuh"
 #include "../layer/input.cuh"
@@ -27,19 +28,24 @@ class Network {
 private:
 	std::vector<Layer*> layers;
 	float* data;
+	int data_dim;
 	float* label;
+	int label_dim;
 	int size, batch;
 public:
-	Network(float* data, float* label, int size, int batch);
+	Network(float* data, int data_dim, float* label, int label_dim,
+			int count, int batch);
 	virtual ~Network();
 	void Train(int iteration, float alpha);
-	void PushInput(int n, int c, int h, int w, float* data);
-	void PushOutput(float* label, int num_label, int batch);
-	void PushConvolution(int n ,int c, int h, int w, int kernel);
+	void PushInput(int c, int h, int w);
+	void PushOutput(int label_dim);
+	void PushConvolution(int c, int kernel);
 	void PushPooling(int size, int stride);
 	void PushReLU(int output_size);
 	void PushSoftmax(int output_size);
 	void Pop();
+
+	void PrintGeneral();
 };
 
 } /* namespace model */

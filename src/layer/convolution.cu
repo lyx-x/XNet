@@ -11,7 +11,7 @@ using namespace global;
 
 namespace layer {
 
-Convolution::Convolution(Layer* _prev, int n ,int c, int h, int w, int kernel) :
+Convolution::Convolution(Layer* _prev, int n ,int c, int kernel) :
 		Layer() {
 	prev = _prev;
 	prev->next = this;
@@ -33,6 +33,9 @@ Convolution::Convolution(Layer* _prev, int n ,int c, int h, int w, int kernel) :
 	callCuda(cudaMalloc(&param, sizeof(float) * param_size));
 	callCuda(cudaMalloc(&gradient, sizeof(float) * param_size));
 	utils::setGpuNormalValue(param, param_size);
+
+	int h = _h - kernel + 1;
+	int w = _w - kernel + 1;
 
 	callCudnn(cudnnCreateTensorDescriptor(&t_data));
 	callCudnn(cudnnSetTensor4dDescriptor(t_data, CUDNN_TENSOR_NCHW,	CUDNN_DATA_FLOAT,
