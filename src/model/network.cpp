@@ -18,10 +18,11 @@ Network::Network(float* _data, int _data_dim, float* _label, int _label_dim,
 	this->data_dim = _data_dim;
 	this->label_dim = _label_dim;
 	callCuda(cudaMalloc(&data, sizeof(float) * data_dim * size));
-	callCuda(cudaMemcpy(data, _data, data_dim * size, cudaMemcpyHostToDevice));
-	callCuda(cudaMalloc(&label, sizeof(float) * label_dim * batch));
-	callCuda(cudaMemcpy(label, _label, label_dim * batch, cudaMemcpyHostToDevice));
-
+	callCuda(cudaMemcpy(data, _data, sizeof(float) * data_dim * size,
+			cudaMemcpyHostToDevice));
+	callCuda(cudaMalloc(&label, sizeof(float) * label_dim * size));
+	callCuda(cudaMemcpy(label, _label, sizeof(float) * label_dim * size,
+			cudaMemcpyHostToDevice));
 }
 
 Network::~Network() {
@@ -39,11 +40,17 @@ void Network::Train(int iteration, float alpha) {
 			dynamic_cast<Output*>(layers[layers.size() - 1])->label = label + b * batch * label_dim;
 			for (int i = 0; i < layers.size(); i++)
 				layers[i]->forward();
+			//utils::printGpuMatrix(layers[layers.size() - 2]->data, batch * 10, batch, 10, 2);
+			layers[layers.size() - 1]->backward();
+			//utils::printGpuMatrix(dynamic_cast<Output*>(layers[layers.size() - 1])->diff, batch * 10, batch, 10, 2);
+			/*
 			for (int i = layers.size() - 1; i >= 0; i--) {
 				layers[i]->backward();
 				layers[i]->update(alpha);
 			}
+			*/
 		}
+
 	}
 }
 
@@ -90,8 +97,12 @@ void Network::PrintGeneral() {
 	int i = 1;
 	for (Layer* l : layers) {
 		std::cout << " - " << i++ << ' ' << l->data_size << std::endl;
-		utils::printGpuMatrix(l->data, 10, 1, 10, 6);
+		//utils::printGpuMatrix(l->data, 10, 1, 10, 6);
 	}
+}
+
+void Network::PrintData(int offset, int r, int c, int precision) {
+	utils::printGpuMatrix(data + offset, r * c, r, c, precision);
 }
 
 } /* namespace model */

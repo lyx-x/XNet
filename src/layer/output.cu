@@ -53,7 +53,12 @@ void Output::forward() {
 }
 
 void Output::backward() {
+	//std::cout << "hehre\n";
+	utils::printGpuMatrix(label, batch, 1, batch, 2);
+	callCuda(cudaMemcpy(diff, prev->data, sizeof(float) * prev->data_size,
+			cudaMemcpyDeviceToDevice));
 	softmaxLoss<<< (batch + 127) / 128, 128>>> (label, label_dim, batch, diff);
+	utils::printGpuMatrix(diff, batch * 10, 10, batch, 2);
 }
 
 void Output::update(float alpha) {

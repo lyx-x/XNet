@@ -46,6 +46,7 @@ public:
 	void Pop();
 
 	void PrintGeneral();
+	void PrintData(int offset, int r, int c, int precision);
 };
 
 } /* namespace model */

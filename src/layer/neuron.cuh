@@ -14,13 +14,13 @@ namespace layer {
 
 class Neuron : public Layer {
 protected:
-	float* tmp_data;
+	float* tmp_data; // z
 	float* tmp_diff;
 	int input_size;
 	int output_size;
 	float* one;
 public:
-	Neuron(Layer* _prev, int _output_size);
+	Neuron(Layer* _prev, int _output_size); // data is output_size * batch
 	virtual ~Neuron();
 	void forward();
 	virtual void forward_activation() = 0;

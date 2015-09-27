@@ -69,12 +69,13 @@ int lenet() {
 	delete[] train_images;
 	delete[] train_labels;
 
-	//utils::printCpuMatrix(train, 28, 1, 28, 6);
+	//utils::printCpuMatrix(h_train_images, 28, 1, 28, 6);
+	//utils::printCpuMatrix(h_train_labels, 50, 50, 1, 2);
 
 	int data_dim = width * height * channels;
 	int label_dim = 1;
 	int count = train_size;
-	/*
+
 	model::Network network(h_train_images, data_dim, h_train_labels, label_dim,
 			count, batch_size);
 	network.PushInput(channels, height, width); // 1 28 28
@@ -85,11 +86,12 @@ int lenet() {
 	network.PushReLU(500);
 	network.PushSoftmax(10);
 	network.PushOutput(10);
+	//network.PrintData(0, 28, 28, 2); // show the first data
 	network.PrintGeneral();
-	std::cout << "Training ..." << std::endl;
-	//network.Train(iteration, 0.001);
-	std::cout << "End of training ..." << std::endl;
-*/
+	//std::cout << "Training ..." << std::endl;
+	network.Train(iteration, 0.001);
+	//std::cout << "End of training ..." << std::endl;
+
 	delete[] h_train_images;
 	delete[] h_train_labels;
 
