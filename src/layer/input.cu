@@ -18,13 +18,10 @@ Input::Input(int n, int c, int h, int w, float* _data) : Layer() {
 			n, c, h, w));
 	data_size = n * c * h * w;
 	data = _data;
-	//callCuda(cudaMalloc(&data, sizeof(float) * data_size));
-	//callCuda(cudaMemcpy(data, _data, data_size, cudaMemcpyHostToDevice));
 }
 
 Input::~Input() {
 	callCudnn(cudnnDestroyTensorDescriptor(t_data));
-	//callCuda(cudaFree(data));
 	data = NULL;
 }
 

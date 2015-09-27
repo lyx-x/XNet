@@ -30,6 +30,7 @@ Pooling::Pooling(Layer* _prev, int size, int stride) {
 	data_size = _n * _c * (_h / stride) * (_w / stride);
 	callCuda(cudaMalloc(&data, sizeof(float) * data_size));
 	callCuda(cudaMalloc(&diff, sizeof(float) * prev->data_size));
+	utils::setGpuValue(diff, prev->data_size, 0);
 }
 
 Pooling::~Pooling() {

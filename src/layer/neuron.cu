@@ -69,16 +69,17 @@ void Neuron::forward() {
 }
 
 void Neuron::backward() {
+	utils::setGpuValue(diff, input_size * batch, 0);
 	float a = 1;
 	float b = 0;
 	backward_activation();
 	callCuda(cublasSgemm(cublasHandle, CUBLAS_OP_N, CUBLAS_OP_T, input_size,
-			output_size, batch, &a, prev->data, input_size, next->diff, output_size,
+			output_size, batch, &a, prev->data, input_size, tmp_diff, output_size,
 			&b, gradient, input_size));
 	callCuda(cublasSgemv(cublasHandle, CUBLAS_OP_N, output_size, batch,
-			&a, next->diff, output_size, one, 1, &b, gradient_bias, 1));
+			&a, tmp_diff, output_size, one, 1, &b, gradient_bias, 1));
 	callCuda(cublasSgemm(cublasHandle, CUBLAS_OP_N, CUBLAS_OP_N, input_size,
-			batch, output_size, &a, param, input_size, next->diff, output_size,
+			batch, output_size, &a, param, input_size, tmp_diff, output_size,
 			&b, diff, input_size));
 }
 

@@ -36,22 +36,32 @@ void Network::Train(int iteration, float alpha) {
 	for (int k = 0; k < iteration; k++) {
 		std::cout << "Iteration " << k + 1 << std::endl;
 		for (int b = 0; b < size / batch; b++) {
-			layers.front()->data = data + b * batch * data_dim;
+			std::cout << "Batch " << b + 1 << std::endl;
+			layers[0]->data = data + b * batch * data_dim;
 			dynamic_cast<Output*>(layers[layers.size() - 1])->label = label + b * batch * label_dim;
-			for (int i = 0; i < layers.size(); i++)
+			for (int i = 0; i < layers.size() - 1; i++) {
 				layers[i]->forward();
+				//utils::printGpuMatrix(layers[i]->data, 10, 1, 10, 4);
+			}
+			utils::printGpuMatrix(layers[layers.size() - 2]->data, 10, 1, 10, 4);
+			std::cout << "Back" << std::endl;
 			//utils::printGpuMatrix(layers[layers.size() - 2]->data, batch * 10, batch, 10, 2);
-			layers[layers.size() - 1]->backward();
-			//utils::printGpuMatrix(dynamic_cast<Output*>(layers[layers.size() - 1])->diff, batch * 10, batch, 10, 2);
-			/*
-			for (int i = layers.size() - 1; i >= 0; i--) {
+			//layers[layers.size() - 1]->backward();
+			//utils::printGpuMatrix(dynamic_cast<Output*>(layers[layers.size() - 1])->diff, batch * 10, 10, batch, 2);
+
+			for (int i = layers.size() - 1; i > 0; i--) {
 				layers[i]->backward();
+				//utils::printGpuMatrix(layers[i]->diff, 10, 1, 10, 8);
 				layers[i]->update(alpha);
 			}
-			*/
-		}
+			//utils::printGpuMatrix(layers[layers.size() - 1]->diff, 10, 1, 10, 4);
+			//utils::printGpuMatrix(layers[layers.size() - 1]->diff, 10 * batch, 10, batch, 4);
 
+		}
+		//utils::printGpuMatrix(layers[layers.size() - 2]->data, 10, 1, 10, 4);
+		//utils::printGpuMatrix(layers[layers.size() - 1]->diff, 10, 1, 10, 4);
 	}
+
 }
 
 void Network::PushInput(int c, int h, int w) {

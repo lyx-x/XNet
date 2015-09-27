@@ -70,6 +70,7 @@ Convolution::~Convolution() {
 	callCuda(cudaFree(param_bias));
 	callCuda(cudaFree(gradient));
 	callCuda(cudaFree(gradient_bias));
+	callCuda(cudaFree(workspace));
 }
 
 void Convolution::forward() {
@@ -79,9 +80,12 @@ void Convolution::forward() {
 			param, descriptor, algo, workspace, workspace_size, &b, t_data, data));
 	callCudnn(cudnnAddTensor(cudnnHandle, CUDNN_ADD_SAME_C, &a, t_bias,	param_bias,
 			&a, t_data, data));
+	//utils::printGpuMatrix(data, 10, 1, 10, 6);
+	//utils::printGpuMatrix(param, 10, 1, 10, 6);
 }
 
 void Convolution::backward() {
+	utils::setGpuValue(diff, prev->data_size, 0);
 	float a = 1;
 	float b = 0;
 	callCudnn(cudnnConvolutionBackwardBias(cudnnHandle, &a, t_data,
@@ -93,7 +97,10 @@ void Convolution::backward() {
 }
 
 void Convolution::update(float alpha) {
+	//utils::printGpuMatrix(param, 10, 1, 10, 5);
+	//utils::printGpuMatrix(gradient, 10, 1, 10, 5);
 	callCuda(cublasSaxpy(cublasHandle, param_size, &alpha, gradient, 1, param, 1));
+	//utils::printGpuMatrix(param, 10, 1, 10, 5);
 	callCuda(cublasSaxpy(cublasHandle, param_bias_size,	&alpha,
 			gradient_bias, 1, param_bias, 1));
 }
