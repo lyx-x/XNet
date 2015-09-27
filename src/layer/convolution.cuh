@@ -18,8 +18,8 @@ private:
 	cudnnConvolutionDescriptor_t descriptor;
 	cudnnTensorDescriptor_t t_bias;
 	cudnnConvolutionFwdAlgo_t algo;
-	size_t workspace_size;
-	void* workspace;
+	size_t workspace_size; // extra size for computing
+	void* workspace; // pointer to the extra size
 public:
 	Convolution(Layer* _prev, int n ,int c, int kernel);
 	virtual ~Convolution();

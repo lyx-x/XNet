@@ -53,7 +53,6 @@ void Pooling::backward() {
 	callCudnn(cudnnPoolingBackward(cudnnHandle, descriptor, &a,
 			t_data, data, t_data, next->diff,
 			prev->t_data, prev->data, &b, prev->t_data, diff));
-	//utils::printGpuMatrix(next->diff, 800, 50, 16, 6);
 }
 
 void Pooling::update(float alpha) {

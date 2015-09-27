@@ -28,23 +28,24 @@ public:
 	Layer();
 	virtual ~Layer();
 
+	// three virtual method that all layers should have
 	virtual void forward() = 0;
 	virtual void backward() = 0;
 	virtual void update(float alpha) = 0;
 
-	Layer* prev;
-	Layer* next;
-	cudnnTensorDescriptor_t t_data;
-	float* data;
-	int data_size;
-	float* diff;
-	float* param;
-	int param_size;
-	float* param_bias;
-	int param_bias_size;
-	float* gradient;
-	float* gradient_bias;
-	int batch;
+	Layer* prev; // previous layer
+	Layer* next; // next layer
+	cudnnTensorDescriptor_t t_data; // output dimension
+	float* data; // output
+	int data_size; // output size
+	float* diff; // difference for the previous layer
+	float* param; // parameters
+	int param_size; // parameters count
+	float* param_bias; // bias parameters for some layers
+	int param_bias_size; // bias parameters count
+	float* gradient; // gradient of parameters
+	float* gradient_bias; // gradient of bias parameters
+	int batch; // batch size
 };
 
 } /* namespace layer */

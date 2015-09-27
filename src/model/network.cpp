@@ -37,23 +37,23 @@ Network::~Network() {
 }
 
 void Network::Train(int iteration, float alpha) {
+	// train the network multiple times
 	for (int k = 0; k < iteration; k++) {
+		// divide the training set to small pieces
 		std::cout << "Iteration " << k + 1 << std::endl;
 		for (int b = 0; b < size / batch; b++) {
-			//std::cout << "Batch " << b + 1 << std::endl;
+			// choose a new piece and its labels
 			layers[0]->data = data + b * batch * data_dim;
 			dynamic_cast<Output*>(layers[layers.size() - 1])->label = label + b * batch * label_dim;
-			for (int i = 0; i < layers.size() - 1; i++) {
+			// forward propagation
+			for (int i = 0; i < layers.size() - 1; i++)
 				layers[i]->forward();
-				//utils::printGpuMatrix(layers[i]->data, 10, 1, 10, 4);
-			}
-			std::cout << h_label[b * batch * label_dim] << std::endl;
-			utils::printGpuMatrix(layers[layers.size() - 2]->data, 10, 1, 10, 4);
-			//std::cout << "Back" << std::endl;
+			//std::cout << h_label[b * batch * label_dim] << std::endl;
+			//utils::printGpuMatrix(layers[layers.size() - 2]->data, 10, 1, 10, 4);
+			// back propagation
 			for (int i = layers.size() - 1; i > 0; i--) {
 				layers[i]->backward();
-				//utils::printGpuMatrix(layers[i]->diff, 10, 1, 10, 8);
-				layers[i]->update(alpha);
+				layers[i]->update(alpha); // update the parameters
 			}
 		}
 	}
@@ -101,10 +101,8 @@ void Network::PrintGeneral() {
 	std::cout << "Neural Network" << std::endl;
 	std::cout << "Layers: " << layers.size() << std::endl;
 	int i = 1;
-	for (Layer* l : layers) {
+	for (Layer* l : layers)
 		std::cout << " - " << i++ << ' ' << l->data_size << std::endl;
-		//utils::printGpuMatrix(l->data, 10, 1, 10, 6);
-	}
 }
 
 void Network::PrintData(int offset, int r, int c, int precision) {

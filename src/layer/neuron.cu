@@ -69,8 +69,6 @@ void Neuron::forward() {
 }
 
 void Neuron::backward() {
-	utils::setGpuValue(diff, prev->data_size, 0);
-	//std::cout << input_size << ' ' << output_size << std::endl;
 	float a = 1;
 	float b = 0;
 	backward_activation();

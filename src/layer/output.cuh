@@ -14,8 +14,8 @@ namespace layer {
 
 class Output: public Layer {
 public:
-	float* label;
-	int label_dim;
+	float* label; // real label
+	int label_dim; // dimension of label (ex. 10 for digit recognition)
 public:
 	Output(Layer* _prev, float* _label, int _label_dim, int _batch);
 	virtual ~Output();

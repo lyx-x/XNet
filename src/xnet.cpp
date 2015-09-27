@@ -80,11 +80,10 @@ int lenet() {
 	network.PushReLU(50);
 	network.PushSoftmax(10);
 	network.PushOutput(10);
-	//network.PrintData(0, 28, 28, 2); // show the first data
 	network.PrintGeneral();
-	//std::cout << "Training ..." << std::endl;
+	std::cout << "Training ..." << std::endl;
 	network.Train(iteration, -1e-2);
-	//std::cout << "End of training ..." << std::endl;
+	std::cout << "End of training ..." << std::endl;
 
 	delete[] train_images;
 	delete[] train_labels;
