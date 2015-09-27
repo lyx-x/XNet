@@ -31,7 +31,7 @@ string train_images_path = "data/MNIST/train-images.idx3-ubyte";
 string train_labels_path = "data/MNIST/train-labels.idx1-ubyte";
 string test_images_path = "data/MNIST/t10k-images.idx3-ubyte";
 string test_labels_path = "data/MNIST/t10k-labels.idx1-ubyte";
-int batch_size = 1;
+int batch_size = 50;
 int iteration = 1;
 
 int lenet() {
@@ -66,17 +66,11 @@ int lenet() {
 	for (int i = 0; i < train_size; i++)
 		h_train_labels[i] = (float)train_labels[i];
 
-	delete[] train_images;
-	delete[] train_labels;
-
-	//utils::printCpuMatrix(h_train_images, 28, 1, 28, 6);
-	//utils::printCpuMatrix(h_train_labels, 50, 50, 1, 2);
-
 	int data_dim = width * height * channels;
 	int label_dim = 1;
-	int count = 5;
+	int count = train_size;
 
-	model::Network network( h_train_images, data_dim, h_train_labels, label_dim,
+	model::Network network(h_train_images, data_dim, h_train_labels, label_dim,
 			count, batch_size);
 	network.PushInput(channels, height, width); // 1 28 28
 	network.PushConvolution(20, 5);
@@ -89,9 +83,11 @@ int lenet() {
 	//network.PrintData(0, 28, 28, 2); // show the first data
 	network.PrintGeneral();
 	//std::cout << "Training ..." << std::endl;
-	network.Train(iteration, -1e-3);
+	network.Train(iteration, -1e-2);
 	//std::cout << "End of training ..." << std::endl;
 
+	delete[] train_images;
+	delete[] train_labels;
 	delete[] h_train_images;
 	delete[] h_train_labels;
 

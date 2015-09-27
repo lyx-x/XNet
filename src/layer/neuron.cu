@@ -20,18 +20,18 @@ Neuron::Neuron(Layer* _prev, int _output_size) {
 	callCudnn(cudnnGetTensor4dDescriptor(prev->t_data, &_t, &_n, &_c, &_h, &_w, &_tmp,
 			&_tmp, &_tmp, &_tmp));
 	batch = _n;
-	input_size = _c;
+	input_size = _c * _h * _w;
 	output_size = _output_size;
 	callCudnn(cudnnCreateTensorDescriptor(&t_data));
 	callCudnn(cudnnSetTensor4dDescriptor(t_data, CUDNN_TENSOR_NCHW, CUDNN_DATA_FLOAT,
-			_n, output_size, 1, 1));
-	data_size = _n * output_size;
+			batch, output_size, 1, 1));
+	data_size = batch * output_size;
 	callCuda(cudaMalloc(&data, sizeof(float) * data_size));
 	callCuda(cudaMalloc(&tmp_data, sizeof(float) * data_size));
 	callCuda(cudaMalloc(&diff, sizeof(float) * prev->data_size));
 	callCuda(cudaMalloc(&tmp_diff, sizeof(float) * data_size));
 
-	param_size = _c * output_size;
+	param_size = input_size * output_size;
 	param_bias_size = output_size;
 	callCuda(cudaMalloc(&param, sizeof(float) * param_size));
 	callCuda(cudaMalloc(&param_bias, sizeof(float) * param_bias_size));
@@ -69,7 +69,8 @@ void Neuron::forward() {
 }
 
 void Neuron::backward() {
-	utils::setGpuValue(diff, input_size * batch, 0);
+	utils::setGpuValue(diff, prev->data_size, 0);
+	//std::cout << input_size << ' ' << output_size << std::endl;
 	float a = 1;
 	float b = 0;
 	backward_activation();

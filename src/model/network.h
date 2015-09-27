@@ -28,8 +28,10 @@ class Network {
 private:
 	std::vector<Layer*> layers;
 	float* data;
+	float* h_data;
 	int data_dim;
 	float* label;
+	float* h_label;
 	int label_dim;
 	int size, batch;
 public:
