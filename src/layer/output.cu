@@ -22,6 +22,24 @@ __global__ void softmaxLoss(const float *label, int label_dim, int batch, float 
 	diff[idx * label_dim + label_value] -= 1.0f;
 }
 
+__global__ void predict(const float *softmax, int label_dim, int batch, float *data)
+{
+	int idx = blockIdx.x * blockDim.x + threadIdx.x;
+	if (idx >= batch)
+		return;
+
+	int label_value = 0;
+	float max = -1;
+	for (int i = 0; i < label_dim; i++) {
+		if (softmax[idx * label_dim + i] > max) {
+			max = softmax[idx * label_dim + i];
+			label_value = i;
+		}
+	}
+
+	data[idx] = (float)label_value;
+}
+
 Output::Output(Layer* _prev, float* _label, int _label_dim, int _batch) : Layer() {
 	prev = _prev;
 	prev->next = this;
@@ -46,7 +64,8 @@ Output::~Output() {
 }
 
 void Output::forward() {
-	// nothing
+	//utils::setGpuValue(data, data_size, 0);
+	predict<<< (batch + 127) / 128, 128>>> (prev->data, label_dim, batch, data);
 }
 
 void Output::backward() {

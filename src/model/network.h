@@ -36,7 +36,7 @@ private:
 	int size, batch; // whole size of data, batch size
 public:
 	Network(float* data, int data_dim, float* label, int label_dim,
-			int count, int batch);
+			int count, int _batch);
 	virtual ~Network();
 	void Train(int iteration, float alpha); // train the network
 	void PushInput(int c, int h, int w);
@@ -46,6 +46,9 @@ public:
 	void PushReLU(int output_size);
 	void PushSoftmax(int output_size);
 	void Pop(); // remove last layer
+
+	void SwitchData(float* h_data, float* h_label, int count);
+	void Test(float* h_label, int count);
 
 	void PrintGeneral(); // print general information about layers
 	void PrintData(int offset, int r, int c, int precision); // print a datum

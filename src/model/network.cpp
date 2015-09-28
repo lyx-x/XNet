@@ -12,13 +12,13 @@ using namespace layer;
 namespace model {
 
 Network::Network(float* _data, int _data_dim, float* _label, int _label_dim,
-		int count, int batch) {
-	this->h_data = _data;
-	this->h_label = _label;
-	this->size = count;
-	this->batch = batch;
-	this->data_dim = _data_dim;
-	this->label_dim = _label_dim;
+		int count, int _batch) {
+	h_data = _data;
+	h_label = _label;
+	size = count;
+	batch = _batch;
+	data_dim = _data_dim;
+	label_dim = _label_dim;
 	callCuda(cudaMalloc(&data, sizeof(float) * data_dim * size));
 	callCuda(cudaMemcpy(data, h_data, sizeof(float) * data_dim * size,
 			cudaMemcpyHostToDevice));
@@ -46,10 +46,10 @@ void Network::Train(int iteration, float alpha) {
 			layers[0]->data = data + b * batch * data_dim;
 			dynamic_cast<Output*>(layers[layers.size() - 1])->label = label + b * batch * label_dim;
 			// forward propagation
-			for (int i = 0; i < layers.size() - 1; i++)
+			for (int i = 0; i < layers.size(); i++)
 				layers[i]->forward();
 			//std::cout << h_label[b * batch * label_dim] << std::endl;
-			//utils::printGpuMatrix(layers[layers.size() - 2]->data, 10, 1, 10, 4);
+			//utils::printGpuMatrix(layers[layers.size() - 1]->data, 1, 1, 1, 0);
 			// back propagation
 			for (int i = layers.size() - 1; i > 0; i--) {
 				layers[i]->backward();
@@ -95,6 +95,31 @@ void Network::Pop() {
 	layers.pop_back();
 	delete tmp;
 	layers.back()->next = NULL;
+}
+
+void Network::SwitchData(float* h_data, float* h_label, int count) {
+	size = count;
+	// switch data without modifying the batch size
+	callCuda(cudaFree(data));
+	callCuda(cudaMalloc(&data, sizeof(float) * data_dim * size));
+	callCuda(cudaMemcpy(data, h_data, sizeof(float) * data_dim * size,
+			cudaMemcpyHostToDevice));
+	callCuda(cudaFree(label));
+	callCuda(cudaMalloc(&label, sizeof(float) * label_dim * size));
+	callCuda(cudaMemcpy(label, h_label, sizeof(float) * label_dim * size,
+			cudaMemcpyHostToDevice));
+}
+
+void Network::Test(float* label, int count) {
+	int offset = 0;
+	for (int b = 0; b < size / batch; b++) {
+		layers[0]->data = data + offset / label_dim * data_dim;
+		for (int i = 0; i < layers.size(); i++)
+			layers[i]->forward();
+		callCuda(cudaMemcpy(label + offset, layers[layers.size() - 1]->data,
+				sizeof(float) * label_dim * batch, cudaMemcpyDeviceToHost));
+		offset += batch * label_dim;
+	}
 }
 
 void Network::PrintGeneral() {

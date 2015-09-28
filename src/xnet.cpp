@@ -24,39 +24,38 @@
 #include <vector>
 
 #include "model/network.h"
+#include "utils/read_data.h"
 
 using namespace std;
 
-string train_images_path = "data/MNIST/train-images.idx3-ubyte";
-string train_labels_path = "data/MNIST/train-labels.idx1-ubyte";
-string test_images_path = "data/MNIST/t10k-images.idx3-ubyte";
-string test_labels_path = "data/MNIST/t10k-labels.idx1-ubyte";
-int batch_size = 50;
-int iteration = 1;
+int mnist() {
+	string train_images_path = "data/MNIST/train-images.idx3-ubyte";
+	string train_labels_path = "data/MNIST/train-labels.idx1-ubyte";
+	string test_images_path = "data/MNIST/t10k-images.idx3-ubyte";
+	string test_labels_path = "data/MNIST/t10k-labels.idx1-ubyte";
 
-int lenet() {
-	int width = 28;
-	int height = 28;
 	int channels = 1;
+	int width, height;
+	int train_size, test_size;
 
-	// Open input data
-	std::cout << "Reading input data\n";
+	std::cout << "Reading input data" << std::endl;
 
-	int train_size = 60000;
-	int test_size = 10000;
-
+	// read train data
 	ifstream train_images_file(train_images_path, ios::binary);
-	train_images_file.seekg(16);
+	train_images_file.seekg(4);
+	utils::readInt(train_images_file, &train_size);
+	utils::readInt(train_images_file, &height);
+	utils::readInt(train_images_file, &width);
 	uint8_t* train_images = new uint8_t[train_size * channels * height * width];
 	train_images_file.read((char*)train_images, train_size * channels * height * width);
 
+	// read train label
 	ifstream train_labels_file(train_labels_path, ios::binary);
 	train_labels_file.seekg(8);
 	uint8_t* train_labels = new uint8_t[train_size];
 	train_labels_file.read((char*)train_labels, train_size);
 
-	printf("Done. Training dataset size: %d, Test dataset size: %d\n", (int)train_size, (int)test_size);
-	printf("Batch size: %d, iterations: %d\n", batch_size, iteration);
+	std::cout << "Done. Training dataset size: " << train_size << std::endl;
 
 	// transform data
 	float* h_train_images = new float[train_size * channels * height * width];
@@ -66,9 +65,12 @@ int lenet() {
 	for (int i = 0; i < train_size; i++)
 		h_train_labels[i] = (float)train_labels[i];
 
+	// build LeNet
 	int data_dim = width * height * channels;
-	int label_dim = 1;
-	int count = train_size;
+	int label_dim = 1; // 1 column per label
+	int count = train_size; // data size
+	int batch_size = 100;
+	std::cout << "Batch size: " << batch_size << std::endl;
 
 	model::Network network(h_train_images, data_dim, h_train_labels, label_dim,
 			count, batch_size);
@@ -77,13 +79,64 @@ int lenet() {
 	network.PushPooling(2, 2);
 	network.PushConvolution(50, 5);
 	network.PushPooling(2, 2);
-	network.PushReLU(50);
+	network.PushReLU(500);
 	network.PushSoftmax(10);
 	network.PushOutput(10);
-	network.PrintGeneral();
-	std::cout << "Training ..." << std::endl;
+
+	// train the model
+	int iteration = 1;
+	std::cout << "Train " << iteration << " times ..." << std::endl;
 	network.Train(iteration, -1e-2);
 	std::cout << "End of training ..." << std::endl;
+
+	// read test cases
+	std::cout << "Reading test data" << std::endl;
+
+	ifstream test_images_file(test_images_path, ios::binary);
+	test_images_file.seekg(4);
+	utils::readInt(test_images_file, &test_size);
+	utils::readInt(test_images_file, &height);
+	utils::readInt(test_images_file, &width);
+	uint8_t* test_images = new uint8_t[test_size * channels * height * width];
+	test_images_file.read((char*)test_images, test_size * channels * height * width);
+
+	ifstream test_labels_file(test_labels_path, ios::binary);
+	test_labels_file.seekg(8);
+	uint8_t* test_labels = new uint8_t[test_size];
+	test_labels_file.read((char*)test_labels, train_size);
+
+	std::cout << "Done. Test dataset size: " << test_size << std::endl;
+
+	// transform test data
+	float* h_test_images = new float[test_size * channels * height * width];
+	float* h_test_labels = new float[test_size];
+	for (int i = 0; i < test_size * channels * height * width; i++)
+		h_test_images[i] = (float)test_images[i] / 255.0f;
+	for (int i = 0; i < test_size; i++)
+		h_test_labels[i] = (float)test_labels[i];
+
+	// test the model
+	network.SwitchData(h_test_images, h_test_labels, test_size);
+
+	std::cout << "Testing ..." << std::endl;
+	float* h_test_labels_predict = new float[test_size];
+	network.Test(h_test_labels_predict, test_size);
+	std::cout << "End of testing ..." << std::endl;
+	vector<int> errors;
+	for (int i = 0; i < test_size; i++) {
+		if (std::abs(h_test_labels_predict[i] - h_test_labels[i]) > 0.1) {
+			errors.push_back(i);
+			//std::cout << h_test_labels_predict[i] << ' ' << h_test_labels[i] << endl;
+		}
+	}
+	std::cout << "Error rate: " << (0.0 + errors.size()) / test_size * 100 << std::endl;
+
+	delete[] h_test_labels_predict;
+	delete[] test_images;
+	delete[] test_labels;
+	delete[] h_test_images;
+	delete[] h_test_labels;
+
 
 	delete[] train_images;
 	delete[] train_labels;
@@ -93,11 +146,15 @@ int lenet() {
 	return 0;
 }
 
+int cifar10() {
+	return 0;
+}
+
 int main() {
 	std::cout << "XNet v1.0" << std::endl;
 	callCuda(cublasCreate(&global::cublasHandle));
 	callCudnn(cudnnCreate(&global::cudnnHandle));
-	lenet();
+	mnist();
 	callCuda(cublasDestroy(global::cublasHandle));
 	callCudnn(cudnnDestroy(global::cudnnHandle));
 	return 0;
