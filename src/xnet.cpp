@@ -27,6 +27,10 @@
 #include "utils/read_data.h"
 #include "test/test.h"
 
+#include "opencv2/opencv.hpp"
+
+using namespace cv;
+
 using namespace std;
 
 string mnist_file = "params/mnist/";
@@ -178,57 +182,43 @@ void mnist(float* h_image, float* h_label, int label_dim = 1,
 	delete[] tmp_label;
 }
 
-void test_mnist() {
-	string train_images_path = "data/MNIST/train-images.idx3-ubyte";
-	string train_labels_path = "data/MNIST/train-labels.idx1-ubyte";
-
+void camera_mnist() {
 	int channels = 1;
-	int width, height;
-	int train_size, test_size;
+	int width = 28, height = 28;
 
-	cout << "Reading input data" << endl;
+	float* h_image = new float[channels * height * width];
+	float* h_label_predict = new float[1];
 
-	// read train data
-	ifstream train_images_file(train_images_path, ios::binary);
-	train_images_file.seekg(4);
-	utils::readInt(train_images_file, &train_size);
-	utils::readInt(train_images_file, &height);
-	utils::readInt(train_images_file, &width);
+	VideoCapture cap(0); // open the default camera
+	if(!cap.isOpened())  // check if we succeeded
+		return;
 
-	train_size = 1;
-	uint8_t* train_images = new uint8_t[train_size * channels * height * width];
-	utils::readBytes(train_images_file, train_images,
-			train_size * channels * height * width);
-	train_images_file.close();
+	Mat image;
+	namedWindow("number", 1);
+	int threshold = 128;
+	createTrackbar("Threshold", "number", &threshold, 255);
+	while (true) {
+		Mat frame;
+		cap >> frame; // get a new frame from camera
+		Mat tmp;
+		resize(frame, tmp, Size(28, 28));
+		cvtColor(tmp, image, CV_BGR2GRAY);
+		for (int i = 0; i < channels * height * width; i++) {
+			unsigned char _p = image.at<uchar>(i / 28, i % 28);
+			image.at<uchar>(i / 28, i % 28) = _p < threshold ? 255 : 0;
+		}
+		imshow("number", image);
+		for (int i = 0; i < channels * height * width; i++) {
+			h_image[i] = image.at<uchar>(i / 28, i % 28) / 255.0f;
+		}
+		mnist(h_image, h_label_predict);
+		cout << h_label_predict[0] << endl;
+		if (waitKey(100) >= 0)
+			break;
+	}
 
-	// read train label
-	ifstream train_labels_file(train_labels_path, ios::binary);
-	train_labels_file.seekg(8);
-	uint8_t* train_labels = new uint8_t[train_size];
-	utils::readBytes(train_labels_file, train_labels, train_size);
-	train_labels_file.close();
-
-	cout << "Done. Training dataset size: " << train_size << endl;
-	train_size = 1;
-
-	// transform data
-	float* h_train_images = new float[train_size * channels * height * width];
-	float* h_train_labels = new float[train_size];
-	for (int i = 0; i < train_size * channels * height * width; i++)
-		h_train_images[i] = (float)train_images[i] / 255.0f;
-	for (int i = 0; i < train_size; i++)
-		h_train_labels[i] = (float)train_labels[i];
-
-	float* h_test_labels_predict = new float[train_size];
-
-	mnist(h_train_images, h_test_labels_predict);
-	cout << h_test_labels_predict[0] << ' ' << h_train_labels[0] << endl;
-
-	delete[] h_test_labels_predict;
-	delete[] train_images;
-	delete[] train_labels;
-	delete[] h_train_images;
-	delete[] h_train_labels;
+	delete[] h_label_predict;
+	delete[] h_image;
 
 }
 
@@ -242,7 +232,7 @@ int main() {
 	callCudnn(cudnnCreate(&global::cudnnHandle));
 
 	//train_mnist();
-	test_mnist();
+	camera_mnist();
 
 	callCuda(cublasDestroy(global::cublasHandle));
 	callCudnn(cudnnDestroy(global::cudnnHandle));
