@@ -25,10 +25,13 @@
 
 #include "model/network.h"
 #include "utils/read_data.h"
+#include "test/test.h"
 
 using namespace std;
 
-int mnist() {
+string mnist_file = "params/mnist/";
+
+int train_mnist() {
 	string train_images_path = "data/MNIST/train-images.idx3-ubyte";
 	string train_labels_path = "data/MNIST/train-labels.idx1-ubyte";
 	string test_images_path = "data/MNIST/t10k-images.idx3-ubyte";
@@ -38,7 +41,7 @@ int mnist() {
 	int width, height;
 	int train_size, test_size;
 
-	std::cout << "Reading input data" << std::endl;
+	cout << "Reading input data" << endl;
 
 	// read train data
 	ifstream train_images_file(train_images_path, ios::binary);
@@ -47,15 +50,18 @@ int mnist() {
 	utils::readInt(train_images_file, &height);
 	utils::readInt(train_images_file, &width);
 	uint8_t* train_images = new uint8_t[train_size * channels * height * width];
-	train_images_file.read((char*)train_images, train_size * channels * height * width);
+	utils::readBytes(train_images_file, train_images,
+			train_size * channels * height * width);
+	train_images_file.close();
 
 	// read train label
 	ifstream train_labels_file(train_labels_path, ios::binary);
 	train_labels_file.seekg(8);
 	uint8_t* train_labels = new uint8_t[train_size];
-	train_labels_file.read((char*)train_labels, train_size);
+	utils::readBytes(train_labels_file, train_labels, train_size);
+	train_labels_file.close();
 
-	std::cout << "Done. Training dataset size: " << train_size << std::endl;
+	cout << "Done. Training dataset size: " << train_size << endl;
 
 	// transform data
 	float* h_train_images = new float[train_size * channels * height * width];
@@ -69,29 +75,31 @@ int mnist() {
 	int data_dim = width * height * channels;
 	int label_dim = 1; // 1 column per label
 	int count = train_size; // data size
-	int batch_size = 200;
-	std::cout << "Batch size: " << batch_size << std::endl;
+	int batch_size = 50;
+	cout << "Batch size: " << batch_size << endl;
 
 	model::Network network(h_train_images, data_dim, h_train_labels, label_dim,
 			count, batch_size);
 	network.PushInput(channels, height, width); // 1 28 28
-	network.PushConvolution(20, 5, -1e-2f * 100 / batch_size);
+	network.PushConvolution(20, 5, -1e-2f * 50 / batch_size);
 	network.PushPooling(2, 2);
-	network.PushConvolution(50, 5, -1e-2f * 100 / batch_size);
+	network.PushConvolution(50, 5, -1e-2f * 50 / batch_size);
 	network.PushPooling(2, 2);
-	network.PushReLU(200, -1e-2f * 100 / batch_size);
-	network.PushSoftmax(10, -1e-2f * 100 / batch_size);
+	network.PushReLU(200, -1e-2f * 50 / batch_size);
+	network.PushSoftmax(10, -1e-2f * 50 / batch_size);
 	network.PushOutput(10);
 	network.PrintGeneral();
 
 	// train the model
 	int iteration = 10;
-	std::cout << "Train " << iteration << " times ..." << std::endl;
-	network.Train(iteration);
-	std::cout << "End of training ..." << std::endl;
+	cout << "Train " << iteration << " times ..." << endl;
+	network.ReadParams("params/mnist/");
+	//network.Train(iteration);
+	//network.SaveParams(mnist_file);
+	cout << "End of training ..." << endl;
 
 	// read test cases
-	std::cout << "Reading test data" << std::endl;
+	cout << "Reading test data" << endl;
 
 	ifstream test_images_file(test_images_path, ios::binary);
 	test_images_file.seekg(4);
@@ -100,13 +108,15 @@ int mnist() {
 	utils::readInt(test_images_file, &width);
 	uint8_t* test_images = new uint8_t[test_size * channels * height * width];
 	test_images_file.read((char*)test_images, test_size * channels * height * width);
+	test_images_file.close();
 
 	ifstream test_labels_file(test_labels_path, ios::binary);
 	test_labels_file.seekg(8);
 	uint8_t* test_labels = new uint8_t[test_size];
-	test_labels_file.read((char*)test_labels, train_size);
+	test_labels_file.read((char*)test_labels, test_size);
+	test_labels_file.close();
 
-	std::cout << "Done. Test dataset size: " << test_size << std::endl;
+	cout << "Done. Test dataset size: " << test_size << endl;
 
 	// transform test data
 	float* h_test_images = new float[test_size * channels * height * width];
@@ -119,25 +129,24 @@ int mnist() {
 	// test the model
 	network.SwitchData(h_test_images, h_test_labels, test_size);
 
-	std::cout << "Testing ..." << std::endl;
+	cout << "Testing ..." << endl;
 	float* h_test_labels_predict = new float[test_size];
-	network.Test(h_test_labels_predict, test_size);
-	std::cout << "End of testing ..." << std::endl;
+	network.Test(h_test_labels_predict);
+	cout << "End of testing ..." << endl;
 	vector<int> errors;
 	for (int i = 0; i < test_size; i++) {
-		if (std::abs(h_test_labels_predict[i] - h_test_labels[i]) > 0.1) {
+		if (abs(h_test_labels_predict[i] - h_test_labels[i]) > 0.1) {
 			errors.push_back(i);
-			//std::cout << h_test_labels_predict[i] << ' ' << h_test_labels[i] << endl;
+			//cout << h_test_labels_predict[i] << ' ' << h_test_labels[i] << endl;
 		}
 	}
-	std::cout << "Error rate: " << (0.0 + errors.size()) / test_size * 100 << std::endl;
+	cout << "Error rate: " << (0.0 + errors.size()) / test_size * 100 << endl;
 
 	delete[] h_test_labels_predict;
 	delete[] test_images;
 	delete[] test_labels;
 	delete[] h_test_images;
 	delete[] h_test_labels;
-
 
 	delete[] train_images;
 	delete[] train_labels;
@@ -147,17 +156,97 @@ int mnist() {
 	return 0;
 }
 
+void mnist(float* h_image, float* h_label, int label_dim = 1,
+		int channels = 1, int height = 28, int width = 28) {
+	float* tmp_label = new float[label_dim];
+
+	int data_dim = width * height * channels;
+	model::Network network(h_image, data_dim, tmp_label, label_dim, 1, 1);
+	network.PushInput(channels, height, width); // 1 28 28
+	network.PushConvolution(20, 5, 0);
+	network.PushPooling(2, 2);
+	network.PushConvolution(50, 5, 0);
+	network.PushPooling(2, 2);
+	network.PushReLU(200, 0);
+	network.PushSoftmax(10, 0);
+	network.PushOutput(10);
+
+	// use the model
+	network.ReadParams(mnist_file);
+	network.Test(h_label);
+
+	delete[] tmp_label;
+}
+
+void test_mnist() {
+	string train_images_path = "data/MNIST/train-images.idx3-ubyte";
+	string train_labels_path = "data/MNIST/train-labels.idx1-ubyte";
+
+	int channels = 1;
+	int width, height;
+	int train_size, test_size;
+
+	cout << "Reading input data" << endl;
+
+	// read train data
+	ifstream train_images_file(train_images_path, ios::binary);
+	train_images_file.seekg(4);
+	utils::readInt(train_images_file, &train_size);
+	utils::readInt(train_images_file, &height);
+	utils::readInt(train_images_file, &width);
+
+	train_size = 1;
+	uint8_t* train_images = new uint8_t[train_size * channels * height * width];
+	utils::readBytes(train_images_file, train_images,
+			train_size * channels * height * width);
+	train_images_file.close();
+
+	// read train label
+	ifstream train_labels_file(train_labels_path, ios::binary);
+	train_labels_file.seekg(8);
+	uint8_t* train_labels = new uint8_t[train_size];
+	utils::readBytes(train_labels_file, train_labels, train_size);
+	train_labels_file.close();
+
+	cout << "Done. Training dataset size: " << train_size << endl;
+	train_size = 1;
+
+	// transform data
+	float* h_train_images = new float[train_size * channels * height * width];
+	float* h_train_labels = new float[train_size];
+	for (int i = 0; i < train_size * channels * height * width; i++)
+		h_train_images[i] = (float)train_images[i] / 255.0f;
+	for (int i = 0; i < train_size; i++)
+		h_train_labels[i] = (float)train_labels[i];
+
+	float* h_test_labels_predict = new float[train_size];
+
+	mnist(h_train_images, h_test_labels_predict);
+	cout << h_test_labels_predict[0] << ' ' << h_train_labels[0] << endl;
+
+	delete[] h_test_labels_predict;
+	delete[] train_images;
+	delete[] train_labels;
+	delete[] h_train_images;
+	delete[] h_train_labels;
+
+}
+
 int cifar10() {
 	return 0;
 }
 
 int main() {
-	std::cout << "XNet v1.0" << std::endl;
+	cout << "XNet v1.0" << endl;
 	callCuda(cublasCreate(&global::cublasHandle));
 	callCudnn(cudnnCreate(&global::cudnnHandle));
-	mnist();
+
+	//train_mnist();
+	test_mnist();
+
 	callCuda(cublasDestroy(global::cublasHandle));
 	callCudnn(cudnnDestroy(global::cudnnHandle));
+	cout << "End" << endl;
 	return 0;
 }
 

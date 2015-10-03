@@ -51,8 +51,6 @@ void Network::Train(int iteration) {
 			// forward propagation
 			for (int i = 0; i < layers.size(); i++)
 				layers[i]->forward();
-			//std::cout << h_label[b * batch * label_dim] << std::endl;
-			//utils::printGpuMatrix(layers[layers.size() - 2]->data, 10, 1, 10, 6);
 			// back propagation
 			for (int i = layers.size() - 1; i > 0; i--) {
 				layers[i]->backward();
@@ -108,7 +106,7 @@ void Network::SwitchData(float* h_data, float* h_label, int count) {
 	this->h_label = h_label;
 }
 
-void Network::Test(float* label, int count) {
+void Network::Test(float* label) {
 	int offset = 0;
 	for (int b = 0; b < size / batch; b++) {
 		callCuda(cudaMemcpy(data, h_data + offset * data_dim,
@@ -134,6 +132,26 @@ void Network::PrintGeneral() {
 
 void Network::PrintData(int offset, int r, int c, int precision) {
 	utils::printGpuMatrix(data + offset, r * c, r, c, precision);
+}
+
+void Network::ReadParams(std::string dir) {
+	for (int i = 1; i < layers.size() - 1; i++) {
+		if (layers[i]->param_size > 0)
+			utils::readGPUMatrix(dir + std::to_string(i), layers[i]->param, layers[i]->param_size);
+		if (layers[i]->param_bias_size > 0)
+			utils::readGPUMatrix(dir + std::to_string(i) + "_bias",
+					layers[i]->param_bias, layers[i]->param_bias_size);
+	}
+}
+
+void Network::SaveParams(std::string dir) {
+	for (int i = 1; i < layers.size() - 1; i++) {
+		if (layers[i]->param_size > 0)
+			utils::writeGPUMatrix(dir + std::to_string(i), layers[i]->param, layers[i]->param_size);
+		if (layers[i]->param_bias_size > 0)
+			utils::writeGPUMatrix(dir + std::to_string(i) + "_bias",
+					layers[i]->param_bias, layers[i]->param_bias_size);
+	}
 }
 
 } /* namespace model */

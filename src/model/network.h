@@ -20,6 +20,9 @@
 #include "../layer/relu.cuh"
 #include "../layer/softmax.cuh"
 
+#include "../utils/read_data.h"
+#include "../utils/write_data.h"
+
 using namespace layer;
 
 namespace model {
@@ -48,10 +51,13 @@ public:
 	void Pop(); // remove last layer
 
 	void SwitchData(float* h_data, float* h_label, int count);
-	void Test(float* h_label, int count);
+	void Test(float* h_label);
 
 	void PrintGeneral(); // print general information about layers
 	void PrintData(int offset, int r, int c, int precision); // print a datum
+
+	void ReadParams(std::string dir);
+	void SaveParams(std::string dir);
 };
 
 } /* namespace model */

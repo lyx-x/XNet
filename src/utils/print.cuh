@@ -14,6 +14,8 @@
 #include "cuda_runtime.h"
 #include "cublas_v2.h"
 
+#include "utils.h"
+
 namespace utils {
 
 void printCpuMatrix(float* m, int n, int r, int c = 1, int precision = 2);

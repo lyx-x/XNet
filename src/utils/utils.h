@@ -8,6 +8,9 @@
 #ifndef UTILS_H_
 #define UTILS_H_
 
+#include <sstream>
+#include <iostream>
+
 #include <cuda_runtime.h>
 #include <cublas_v2.h>
 #include <cudnn.h>
