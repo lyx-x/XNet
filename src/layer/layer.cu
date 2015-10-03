@@ -9,7 +9,9 @@
 
 namespace layer {
 
-Layer::Layer() {}
+Layer::Layer(float alpha) : alpha(alpha) {
+	isProduction = false;
+}
 
 Layer::~Layer() {}
 

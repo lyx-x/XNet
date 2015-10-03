@@ -21,11 +21,11 @@ private:
 	size_t workspace_size; // extra size for computing
 	void* workspace; // pointer to the extra size
 public:
-	Convolution(Layer* _prev, int n ,int c, int kernel);
+	Convolution(Layer* _prev, int n ,int c, int kernel, float alpha);
 	virtual ~Convolution();
 	void forward();
 	void backward();
-	void update(float alpha);
+	void update();
 };
 
 } /* namespace layer */

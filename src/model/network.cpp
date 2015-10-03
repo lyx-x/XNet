@@ -36,7 +36,7 @@ Network::~Network() {
 		delete l;
 }
 
-void Network::Train(int iteration, float alpha) {
+void Network::Train(int iteration) {
 	// train the network multiple times
 	for (int k = 0; k < iteration; k++) {
 		// divide the training set to small pieces
@@ -56,7 +56,7 @@ void Network::Train(int iteration, float alpha) {
 			// back propagation
 			for (int i = layers.size() - 1; i > 0; i--) {
 				layers[i]->backward();
-				layers[i]->update(alpha); // update the parameters
+				layers[i]->update(); // update the parameters
 			}
 			offset += batch;
 		}
@@ -74,8 +74,8 @@ void Network::PushOutput(int label_dim) {
 	layers.push_back(output);
 }
 
-void Network::PushConvolution(int c, int kernel) {
-	Convolution* conv = new Convolution(layers.back(), batch, c, kernel);
+void Network::PushConvolution(int c, int kernel, float alpha) {
+	Convolution* conv = new Convolution(layers.back(), batch, c, kernel, alpha);
 	layers.push_back(conv);
 }
 
@@ -84,13 +84,13 @@ void Network::PushPooling(int size, int stride) {
 	layers.push_back(pool);
 }
 
-void Network::PushReLU(int output_size) {
-	ReLU* relu = new ReLU(layers.back(), output_size);
+void Network::PushReLU(int output_size, float alpha) {
+	ReLU* relu = new ReLU(layers.back(), output_size, alpha);
 	layers.push_back(relu);
 }
 
-void Network::PushSoftmax(int output_size) {
-	Softmax* softmax = new Softmax(layers.back(), output_size);
+void Network::PushSoftmax(int output_size, float alpha) {
+	Softmax* softmax = new Softmax(layers.back(), output_size, alpha);
 	layers.push_back(softmax);
 }
 

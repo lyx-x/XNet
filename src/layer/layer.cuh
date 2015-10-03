@@ -25,13 +25,13 @@ namespace layer {
 
 class Layer {
 public:
-	Layer();
+	Layer(float alpha = 0);
 	virtual ~Layer();
 
 	// three virtual method that all layers should have
 	virtual void forward() = 0;
 	virtual void backward() = 0;
-	virtual void update(float alpha) = 0;
+	virtual void update() = 0;
 
 	Layer* prev; // previous layer
 	Layer* next; // next layer
@@ -46,6 +46,8 @@ public:
 	float* gradient; // gradient of parameters
 	float* gradient_bias; // gradient of bias parameters
 	int batch; // batch size
+	float alpha;
+	bool isProduction;
 };
 
 } /* namespace layer */

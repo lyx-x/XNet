@@ -33,7 +33,7 @@ void Input::backward() {
 	// nothing
 }
 
-void Input::update(float alpha) {
+void Input::update() {
 	// nothing
 }
 

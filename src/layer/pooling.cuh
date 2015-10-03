@@ -20,7 +20,7 @@ public:
 	virtual ~Pooling();
 	void forward();
 	void backward();
-	void update(float alpha);
+	void update();
 };
 
 } /* namespace layer */

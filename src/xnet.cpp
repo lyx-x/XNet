@@ -75,19 +75,19 @@ int mnist() {
 	model::Network network(h_train_images, data_dim, h_train_labels, label_dim,
 			count, batch_size);
 	network.PushInput(channels, height, width); // 1 28 28
-	network.PushConvolution(20, 5);
+	network.PushConvolution(20, 5, -1e-2f * 100 / batch_size);
 	network.PushPooling(2, 2);
-	network.PushConvolution(50, 5);
+	network.PushConvolution(50, 5, -1e-2f * 100 / batch_size);
 	network.PushPooling(2, 2);
-	network.PushReLU(200);
-	network.PushSoftmax(10);
+	network.PushReLU(200, -1e-2f * 100 / batch_size);
+	network.PushSoftmax(10, -1e-2f * 100 / batch_size);
 	network.PushOutput(10);
 	network.PrintGeneral();
 
 	// train the model
 	int iteration = 10;
 	std::cout << "Train " << iteration << " times ..." << std::endl;
-	network.Train(iteration, -1e-2f * 100 / batch_size);
+	network.Train(iteration);
 	std::cout << "End of training ..." << std::endl;
 
 	// read test cases

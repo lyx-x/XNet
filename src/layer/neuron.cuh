@@ -21,13 +21,13 @@ protected:
 	int output_size; // output size
 	float* one; // full one vector for bias
 public:
-	Neuron(Layer* _prev, int _output_size); // data is output_size * batch
+	Neuron(Layer* _prev, int _output_size, float alpha); // data is output_size * batch
 	virtual ~Neuron();
 	void forward();
 	virtual void forward_activation() = 0; // support different activation function
 	void backward();
 	virtual void backward_activation() = 0;
-	void update(float alpha);
+	void update();
 };
 
 } /* namespace layer */

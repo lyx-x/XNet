@@ -14,7 +14,7 @@ namespace layer {
 
 class ReLU: public Neuron {
 public:
-	ReLU(Layer* _prev, int _output_size);
+	ReLU(Layer* _prev, int _output_size, float alpha);
 	virtual ~ReLU();
 	void forward_activation();
 	void backward_activation();

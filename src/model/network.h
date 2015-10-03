@@ -38,13 +38,13 @@ public:
 	Network(float* data, int data_dim, float* label, int label_dim,
 			int count, int _batch);
 	virtual ~Network();
-	void Train(int iteration, float alpha); // train the network
+	void Train(int iteration); // train the network
 	void PushInput(int c, int h, int w);
 	void PushOutput(int label_dim);
-	void PushConvolution(int c, int kernel);
+	void PushConvolution(int c, int kernel, float alpha);
 	void PushPooling(int size, int stride);
-	void PushReLU(int output_size);
-	void PushSoftmax(int output_size);
+	void PushReLU(int output_size, float alpha);
+	void PushSoftmax(int output_size, float alpha);
 	void Pop(); // remove last layer
 
 	void SwitchData(float* h_data, float* h_label, int count);

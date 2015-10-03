@@ -11,7 +11,7 @@ using namespace global;
 
 namespace layer {
 
-Neuron::Neuron(Layer* _prev, int _output_size) {
+Neuron::Neuron(Layer* _prev, int _output_size, float alpha) : Layer(alpha) {
 	prev = _prev;
 	prev->next = this;
 
@@ -82,7 +82,7 @@ void Neuron::backward() {
 			&b, diff, input_size));
 }
 
-void Neuron::update(float alpha) {
+void Neuron::update() {
 	callCuda(cublasSaxpy(cublasHandle, param_size, &alpha, gradient, 1, param, 1));
 	callCuda(cublasSaxpy(cublasHandle, param_bias_size,	&alpha,
 			gradient_bias, 1, param_bias, 1));

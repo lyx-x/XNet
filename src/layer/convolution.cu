@@ -11,8 +11,8 @@ using namespace global;
 
 namespace layer {
 
-Convolution::Convolution(Layer* _prev, int n ,int c, int kernel) :
-		Layer() {
+Convolution::Convolution(Layer* _prev, int n ,int c, int kernel, float alpha) :
+		Layer(alpha) {
 	prev = _prev;
 	prev->next = this;
 
@@ -93,7 +93,7 @@ void Convolution::backward() {
 			param, t_data, next->diff, descriptor, &b, prev->t_data, diff));
 }
 
-void Convolution::update(float alpha) {
+void Convolution::update() {
 	callCuda(cublasSaxpy(cublasHandle, param_size, &alpha, gradient, 1, param, 1));
 	callCuda(cublasSaxpy(cublasHandle, param_bias_size,	&alpha,
 			gradient_bias, 1, param_bias, 1));

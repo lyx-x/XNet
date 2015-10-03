@@ -21,7 +21,7 @@ public:
 	virtual ~Output();
 	void forward();
 	void backward();
-	void update(float alpha);
+	void update();
 };
 
 } /* namespace layer */

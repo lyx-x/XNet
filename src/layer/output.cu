@@ -74,7 +74,7 @@ void Output::backward() {
 	softmaxLoss<<< (batch + 127) / 128, 128>>> (label, label_dim, batch, diff);
 }
 
-void Output::update(float alpha) {
+void Output::update() {
 	// nothing
 }
 

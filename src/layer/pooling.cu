@@ -55,8 +55,8 @@ void Pooling::backward() {
 			prev->t_data, prev->data, &b, prev->t_data, diff));
 }
 
-void Pooling::update(float alpha) {
-
+void Pooling::update() {
+	// nothing
 }
 
 }

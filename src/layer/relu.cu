@@ -11,7 +11,8 @@ using namespace global;
 
 namespace layer {
 
-ReLU::ReLU(Layer* _prev, int _output_size) : Neuron(_prev, _output_size) {}
+ReLU::ReLU(Layer* _prev, int _output_size, float alpha) :
+		Neuron(_prev, _output_size, alpha) {}
 
 ReLU::~ReLU() {}
 
