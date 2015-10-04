@@ -160,12 +160,15 @@ int train_mnist() {
 	return 0;
 }
 
-void mnist(float* h_image, float* h_label, int label_dim = 1,
-		int channels = 1, int height = 28, int width = 28) {
-	float* tmp_label = new float[label_dim];
+void camera_mnist() {
+	int channels = 1;
+	int width = 28, height = 28;
+
+	float* h_image = new float[channels * height * width];
+	float* h_label_predict = new float[1];
 
 	int data_dim = width * height * channels;
-	model::Network network(h_image, data_dim, tmp_label, label_dim, 1, 1);
+	model::Network network(h_image, data_dim, h_label_predict, 1, 1, 1);
 	network.PushInput(channels, height, width); // 1 28 28
 	network.PushConvolution(20, 5, 0);
 	network.PushPooling(2, 2);
@@ -174,20 +177,7 @@ void mnist(float* h_image, float* h_label, int label_dim = 1,
 	network.PushReLU(200, 0);
 	network.PushSoftmax(10, 0);
 	network.PushOutput(10);
-
-	// use the model
 	network.ReadParams(mnist_file);
-	network.Test(h_label);
-
-	delete[] tmp_label;
-}
-
-void camera_mnist() {
-	int channels = 1;
-	int width = 28, height = 28;
-
-	float* h_image = new float[channels * height * width];
-	float* h_label_predict = new float[1];
 
 	VideoCapture cap(0); // open the default camera
 	if(!cap.isOpened())  // check if we succeeded
@@ -211,7 +201,7 @@ void camera_mnist() {
 		for (int i = 0; i < channels * height * width; i++) {
 			h_image[i] = image.at<uchar>(i / 28, i % 28) / 255.0f;
 		}
-		mnist(h_image, h_label_predict);
+		network.Test(h_label_predict);
 		cout << h_label_predict[0] << endl;
 		if (waitKey(100) >= 0)
 			break;
