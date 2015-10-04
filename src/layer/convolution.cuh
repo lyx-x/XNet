@@ -20,6 +20,8 @@ private:
 	cudnnConvolutionFwdAlgo_t algo;
 	size_t workspace_size; // extra size for computing
 	void* workspace; // pointer to the extra size
+	float* tmp_data;
+	float* tmp_diff;
 public:
 	Convolution(Layer* _prev, int n ,int c, int kernel, float alpha);
 	virtual ~Convolution();

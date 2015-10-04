@@ -42,7 +42,9 @@ Convolution::Convolution(Layer* _prev, int n ,int c, int kernel, float alpha) :
 			n, c, h, w));
 	data_size = n * c * h * w;
 	callCuda(cudaMalloc(&data, sizeof(float) * data_size));
+	callCuda(cudaMalloc(&tmp_data, sizeof(float) * data_size));
 	callCuda(cudaMalloc(&diff, sizeof(float) * prev->data_size));
+	callCuda(cudaMalloc(&tmp_diff, sizeof(float) * data_size));
 
 	callCudnn(cudnnCreateTensorDescriptor(&t_bias));
 	callCudnn(cudnnSetTensor4dDescriptor(t_bias, CUDNN_TENSOR_NCHW,	CUDNN_DATA_FLOAT,
@@ -65,7 +67,9 @@ Convolution::~Convolution() {
 	callCudnn(cudnnDestroyTensorDescriptor(t_data));
 	callCudnn(cudnnDestroyTensorDescriptor(t_bias));
 	callCuda(cudaFree(data));
+	callCuda(cudaFree(tmp_data));
 	callCuda(cudaFree(diff));
+	callCuda(cudaFree(tmp_diff));
 	callCuda(cudaFree(param));
 	callCuda(cudaFree(param_bias));
 	callCuda(cudaFree(gradient));
@@ -77,26 +81,32 @@ void Convolution::forward() {
 	float a = 1;
 	float b = 0;
 	callCudnn(cudnnConvolutionForward(cudnnHandle, &a, prev->t_data, prev->data, filter,
-			param, descriptor, algo, workspace, workspace_size, &b, t_data, data));
+			param, descriptor, algo, workspace, workspace_size, &b, t_data, tmp_data));
 	callCudnn(cudnnAddTensor(cudnnHandle, CUDNN_ADD_SAME_C, &a, t_bias,	param_bias,
-			&a, t_data, data));
+			&a, t_data, tmp_data));
+	callCudnn(cudnnActivationForward(cudnnHandle, CUDNN_ACTIVATION_RELU, &a,
+			t_data, tmp_data, &b, t_data, data));
 }
 
 void Convolution::backward() {
 	float a = 1;
 	float b = 0;
+	callCudnn(cudnnActivationBackward(cudnnHandle, CUDNN_ACTIVATION_RELU, &a,
+			t_data, data, t_data, next->diff,
+			t_data, tmp_data, &b, t_data, tmp_diff));
 	callCudnn(cudnnConvolutionBackwardBias(cudnnHandle, &a, t_data,
-			next->diff, &b, t_bias, gradient_bias));
+			tmp_diff, &b, t_bias, gradient_bias));
 	callCudnn(cudnnConvolutionBackwardFilter(cudnnHandle, &a, prev->t_data,
-			prev->data, t_data, next->diff, descriptor, &b, filter, gradient));
+			prev->data, t_data, tmp_diff, descriptor, &b, filter, gradient));
 	callCudnn(cudnnConvolutionBackwardData(cudnnHandle, &a, filter,
-			param, t_data, next->diff, descriptor, &b, prev->t_data, diff));
+			param, t_data, tmp_diff, descriptor, &b, prev->t_data, diff));
 }
 
 void Convolution::update() {
 	callCuda(cublasSaxpy(cublasHandle, param_size, &alpha, gradient, 1, param, 1));
 	callCuda(cublasSaxpy(cublasHandle, param_bias_size,	&alpha,
 			gradient_bias, 1, param_bias, 1));
+	alpha = alpha / 1.0001;
 }
 
 }

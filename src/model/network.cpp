@@ -36,7 +36,7 @@ Network::~Network() {
 		delete l;
 }
 
-void Network::Train(int iteration) {
+void Network::Train(int iteration, bool debug) {
 	// train the network multiple times
 	for (int k = 0; k < iteration; k++) {
 		// divide the training set to small pieces
@@ -51,6 +51,10 @@ void Network::Train(int iteration) {
 			// forward propagation
 			for (int i = 0; i < layers.size(); i++)
 				layers[i]->forward();
+			if (debug) {
+				std::cout << h_label[offset * label_dim] << std::endl;
+				utils::printGpuMatrix(layers[layers.size() - 2]->data, 10, 1, 10, 4);
+			}
 			// back propagation
 			for (int i = layers.size() - 1; i > 0; i--) {
 				layers[i]->backward();

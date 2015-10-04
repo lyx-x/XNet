@@ -86,6 +86,7 @@ void Neuron::update() {
 	callCuda(cublasSaxpy(cublasHandle, param_size, &alpha, gradient, 1, param, 1));
 	callCuda(cublasSaxpy(cublasHandle, param_bias_size,	&alpha,
 			gradient_bias, 1, param_bias, 1));
+	alpha = alpha / 1.0001;
 }
 
 }

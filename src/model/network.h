@@ -41,7 +41,7 @@ public:
 	Network(float* data, int data_dim, float* label, int label_dim,
 			int count, int _batch);
 	virtual ~Network();
-	void Train(int iteration); // train the network
+	void Train(int iteration, bool debug = false); // train the network
 	void PushInput(int c, int h, int w);
 	void PushOutput(int label_dim);
 	void PushConvolution(int c, int kernel, float alpha);
