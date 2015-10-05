@@ -54,6 +54,9 @@ Output::Output(Layer* _prev, float* _label, int _label_dim, int _batch) : Layer(
 	label = _label;
 
 	callCuda(cudaMalloc(&diff, sizeof(float) * prev->data_size));
+
+	param_size = 0;
+	param_bias_size = 0;
 }
 
 Output::~Output() {

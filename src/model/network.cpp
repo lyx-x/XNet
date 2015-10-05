@@ -86,6 +86,11 @@ void Network::PushPooling(int size, int stride) {
 	layers.push_back(pool);
 }
 
+void Network::PushActivation(cudnnActivationMode_t mode) {
+	Activation* activation = new Activation(layers.back(), mode);
+	layers.push_back(activation);
+}
+
 void Network::PushReLU(int output_size, float alpha) {
 	ReLU* relu = new ReLU(layers.back(), output_size, alpha);
 	layers.push_back(relu);
@@ -129,7 +134,7 @@ void Network::Test(float* label) {
 void Network::PrintGeneral() {
 	std::cout << "Neural Network" << std::endl;
 	std::cout << "Layers: " << layers.size() << std::endl;
-	int i = 1;
+	int i = 0;
 	for (Layer* l : layers)
 		std::cout << " - " << i++ << ' ' << l->data_size << std::endl;
 }
@@ -151,11 +156,13 @@ void Network::ReadParams(std::string dir) {
 void Network::SaveParams(std::string dir) {
 	for (int i = 1; i < layers.size() - 1; i++) {
 		if (layers[i]->param_size > 0)
-			utils::writeGPUMatrix(dir + std::to_string(i), layers[i]->param, layers[i]->param_size);
+			utils::writeGPUMatrix(dir + std::to_string(i), layers[i]->param,
+					layers[i]->param_size);
 		if (layers[i]->param_bias_size > 0)
 			utils::writeGPUMatrix(dir + std::to_string(i) + "_bias",
 					layers[i]->param_bias, layers[i]->param_bias_size);
 	}
+	std::cout << "Params saved." << std::endl;
 }
 
 } /* namespace model */

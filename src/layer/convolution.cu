@@ -81,25 +81,20 @@ void Convolution::forward() {
 	float a = 1;
 	float b = 0;
 	callCudnn(cudnnConvolutionForward(cudnnHandle, &a, prev->t_data, prev->data, filter,
-			param, descriptor, algo, workspace, workspace_size, &b, t_data, tmp_data));
+			param, descriptor, algo, workspace, workspace_size, &b, t_data, data));
 	callCudnn(cudnnAddTensor(cudnnHandle, CUDNN_ADD_SAME_C, &a, t_bias,	param_bias,
-			&a, t_data, tmp_data));
-	callCudnn(cudnnActivationForward(cudnnHandle, CUDNN_ACTIVATION_RELU, &a,
-			t_data, tmp_data, &b, t_data, data));
+			&a, t_data, data));
 }
 
 void Convolution::backward() {
 	float a = 1;
 	float b = 0;
-	callCudnn(cudnnActivationBackward(cudnnHandle, CUDNN_ACTIVATION_RELU, &a,
-			t_data, data, t_data, next->diff,
-			t_data, tmp_data, &b, t_data, tmp_diff));
 	callCudnn(cudnnConvolutionBackwardBias(cudnnHandle, &a, t_data,
-			tmp_diff, &b, t_bias, gradient_bias));
+			next->diff, &b, t_bias, gradient_bias));
 	callCudnn(cudnnConvolutionBackwardFilter(cudnnHandle, &a, prev->t_data,
-			prev->data, t_data, tmp_diff, descriptor, &b, filter, gradient));
+			prev->data, t_data, next->diff, descriptor, &b, filter, gradient));
 	callCudnn(cudnnConvolutionBackwardData(cudnnHandle, &a, filter,
-			param, t_data, tmp_diff, descriptor, &b, prev->t_data, diff));
+			param, t_data, next->diff, descriptor, &b, prev->t_data, diff));
 }
 
 void Convolution::update() {

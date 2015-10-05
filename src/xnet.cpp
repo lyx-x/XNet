@@ -34,6 +34,7 @@ using namespace cv;
 using namespace std;
 
 string mnist_file = "params/mnist/";
+string cifar10_file = "params/cifar10/";
 
 int train_mnist() {
 	string train_images_path = "data/MNIST/train-images.idx3-ubyte";
@@ -86,8 +87,10 @@ int train_mnist() {
 			count, batch_size);
 	network.PushInput(channels, height, width); // 1 28 28
 	network.PushConvolution(20, 5, -10e-3f);
+	network.PushActivation(CUDNN_ACTIVATION_RELU);
 	network.PushPooling(2, 2);
 	network.PushConvolution(50, 5, -10e-3f);
+	network.PushActivation(CUDNN_ACTIVATION_RELU);
 	network.PushPooling(2, 2);
 	network.PushReLU(400, -10e-3f);
 	network.PushSoftmax(10, -10e-3f);
@@ -97,10 +100,11 @@ int train_mnist() {
 	// train the model
 	int iteration = 10;
 	cout << "Train " << iteration << " times ..." << endl;
-	//network.ReadParams("params/mnist/");
+	//network.ReadParams(mnist_file);
 	network.Train(iteration);
-	network.SaveParams(mnist_file);
 	cout << "End of training ..." << endl;
+
+	network.SaveParams(mnist_file);
 
 	// read test cases
 	cout << "Reading test data" << endl;
@@ -171,8 +175,10 @@ void camera_mnist() {
 	model::Network network(h_image, data_dim, h_label_predict, 1, 1, 1);
 	network.PushInput(channels, height, width); // 1 28 28
 	network.PushConvolution(20, 5, -10e-3f);
+	network.PushActivation(CUDNN_ACTIVATION_RELU);
 	network.PushPooling(2, 2);
 	network.PushConvolution(50, 5, -10e-3f);
+	network.PushActivation(CUDNN_ACTIVATION_RELU);
 	network.PushPooling(2, 2);
 	network.PushReLU(400, -10e-3f);
 	network.PushSoftmax(10, -10e-3f);
@@ -251,21 +257,23 @@ int train_cifar10() {
 			count, batch_size);
 	network.PushInput(channels, height, width); // 1 28 28
 	network.PushConvolution(32, 5, -24e-3f);
+	network.PushActivation(CUDNN_ACTIVATION_RELU);
 	network.PushPooling(2, 2);
-	network.PushConvolution(48, 5, -18e-3f);
+	network.PushConvolution(48, 5, -24e-3f);
+	network.PushActivation(CUDNN_ACTIVATION_RELU);
 	network.PushPooling(2, 2);
 	//network.PushConvolution(48, 3, -18e-3f);
 	//network.PushPooling(2, 2);
-	network.PushReLU(64, -15e-3f);
+	network.PushReLU(64, -18e-3f);
 	network.PushSoftmax(10, -15e-3f);
 	network.PushOutput(10);
 	network.PrintGeneral();
 
 	// train the model
-	int iteration = 16;
+	int iteration = 24;
 	cout << "Train " << iteration << " times ..." << endl;
 	network.Train(iteration, false);
-	//network.SaveParams(mnist_file);
+	network.SaveParams(cifar10_file);
 	cout << "End of training ..." << endl;
 
 	uint8_t* test = new uint8_t[test_size * (data_dim + label_dim)];
@@ -319,9 +327,9 @@ int main() {
 	callCuda(cublasCreate(&global::cublasHandle));
 	callCudnn(cudnnCreate(&global::cudnnHandle));
 
-	//train_mnist();
+	train_mnist();
 	//camera_mnist();
-	train_cifar10();
+	//train_cifar10();
 
 	callCuda(cublasDestroy(global::cublasHandle));
 	callCudnn(cudnnDestroy(global::cudnnHandle));

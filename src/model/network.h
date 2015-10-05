@@ -17,6 +17,7 @@
 #include "../layer/output.cuh"
 #include "../layer/convolution.cuh"
 #include "../layer/pooling.cuh"
+#include "../layer/activation.h"
 #include "../layer/relu.cuh"
 #include "../layer/softmax.cuh"
 
@@ -46,6 +47,7 @@ public:
 	void PushOutput(int label_dim);
 	void PushConvolution(int c, int kernel, float alpha);
 	void PushPooling(int size, int stride);
+	void PushActivation(cudnnActivationMode_t mode);
 	void PushReLU(int output_size, float alpha);
 	void PushSoftmax(int output_size, float alpha);
 	void Pop(); // remove last layer

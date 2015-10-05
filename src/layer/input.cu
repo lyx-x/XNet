@@ -18,6 +18,9 @@ Input::Input(int n, int c, int h, int w, float* _data) : Layer() {
 			n, c, h, w));
 	data_size = n * c * h * w;
 	data = _data;
+
+	param_size = 0;
+	param_bias_size = 0;
 }
 
 Input::~Input() {
