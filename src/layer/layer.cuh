@@ -32,6 +32,7 @@ public:
 	virtual void forward(bool train = true) = 0;
 	virtual void backward() = 0;
 	virtual void update() = 0;
+	void adjust_learning(float scale);
 
 	Layer* prev; // previous layer
 	Layer* next; // next layer

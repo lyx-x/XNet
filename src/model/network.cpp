@@ -37,7 +37,7 @@ Network::~Network() {
 		delete l;
 }
 
-void Network::Train(int iteration, bool debug) {
+void Network::Train(int iteration, float lambda, bool debug) {
 	// train the network multiple times
 	for (int k = 0; k < iteration; k++) {
 		// divide the training set to small pieces
@@ -63,6 +63,8 @@ void Network::Train(int iteration, bool debug) {
 			}
 			offset += batch;
 		}
+		for (int i = layers.size() - 1; i > 0; i--)
+			layers[i]->adjust_learning(lambda);
 		if (size > 0) {
 			float* predict = new float[size];
 			offset = 0;

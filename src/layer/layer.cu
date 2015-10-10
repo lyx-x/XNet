@@ -15,4 +15,10 @@ Layer::Layer(float alpha) : alpha(alpha) {
 
 Layer::~Layer() {}
 
+void Layer::adjust_learning(float scale) {
+	alpha *= scale;
 }
+
+
+}
+
