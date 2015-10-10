@@ -16,11 +16,16 @@
 #include "cublas_v2.h"
 #include "curand.h"
 
+#include "utils.h"
+#include "global.h"
+
 namespace utils {
 
 void setGpuValue(float* x, int n, float val);
 void setGpuNormalValue(float* x, int n, float mean, float stddev);
 void setGpuNormalValue(float* x, int n);
+void dropGpuValue(float *x, int n, float dropout_rate);
+void scaleGpuValue(float *x, int n, float scale);
 
 }
 

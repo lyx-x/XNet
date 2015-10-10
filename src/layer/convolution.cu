@@ -77,7 +77,7 @@ Convolution::~Convolution() {
 	callCuda(cudaFree(workspace));
 }
 
-void Convolution::forward() {
+void Convolution::forward(bool train) {
 	float a = 1;
 	float b = 0;
 	callCudnn(cudnnConvolutionForward(cudnnHandle, &a, prev->t_data, prev->data, filter,
@@ -101,7 +101,6 @@ void Convolution::update() {
 	callCuda(cublasSaxpy(cublasHandle, param_size, &alpha, gradient, 1, param, 1));
 	callCuda(cublasSaxpy(cublasHandle, param_bias_size,	&alpha,
 			gradient_bias, 1, param_bias, 1));
-	alpha = alpha / 1.0001;
 }
 
 }

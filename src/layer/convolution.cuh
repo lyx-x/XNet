@@ -25,7 +25,7 @@ private:
 public:
 	Convolution(Layer* _prev, int n ,int c, int kernel, float alpha);
 	virtual ~Convolution();
-	void forward();
+	void forward(bool train = true);
 	void backward();
 	void update();
 };

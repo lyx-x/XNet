@@ -12,17 +12,18 @@ using namespace layer;
 namespace model {
 
 Network::Network(float* _data, int _data_dim, float* _label, int _label_dim,
-		int count, int _batch) {
+		int count, int _val_size, int _batch) {
 	h_data = _data;
 	h_label = _label;
 	size = count;
+	val_size = _val_size;
 	batch = _batch;
 	data_dim = _data_dim;
 	label_dim = _label_dim;
-	callCuda(cudaMalloc(&data, sizeof(float) * data_dim * size));
+	callCuda(cudaMalloc(&data, sizeof(float) * data_dim * batch));
 	callCuda(cudaMemcpy(data, h_data, sizeof(float) * data_dim * batch,
 			cudaMemcpyHostToDevice));
-	callCuda(cudaMalloc(&label, sizeof(float) * label_dim * size));
+	callCuda(cudaMalloc(&label, sizeof(float) * label_dim * batch));
 	callCuda(cudaMemcpy(label, h_label, sizeof(float) * label_dim * batch,
 			cudaMemcpyHostToDevice));
 }
@@ -49,7 +50,7 @@ void Network::Train(int iteration, bool debug) {
 			callCuda(cudaMemcpy(label, h_label + offset * label_dim,
 					sizeof(float) * label_dim * batch, cudaMemcpyHostToDevice));
 			// forward propagation
-			for (int i = 0; i < layers.size(); i++)
+			for (int i = 0; i < layers.size() - 1; i++)
 				layers[i]->forward();
 			if (debug) {
 				std::cout << h_label[offset * label_dim] << std::endl;
@@ -61,6 +62,46 @@ void Network::Train(int iteration, bool debug) {
 				layers[i]->update(); // update the parameters
 			}
 			offset += batch;
+		}
+		if (size > 0) {
+			float* predict = new float[size];
+			offset = 0;
+			for (int b = 0; b < size / batch; b++) {
+				callCuda(cudaMemcpy(data, h_data + offset * data_dim,
+						sizeof(float) * data_dim * batch, cudaMemcpyHostToDevice));
+				for (int i = 0; i < layers.size(); i++)
+					layers[i]->forward(false);
+				callCuda(cudaMemcpy(predict + offset * label_dim,
+						layers[layers.size() - 1]->data,
+						sizeof(float) * label_dim * batch, cudaMemcpyDeviceToHost));
+				offset += batch;
+			}
+			int errors = 0;
+			for (int i = 0; i < size; i++)
+				if (abs(h_label[i] - predict[i]) > 0.1)
+					errors++;
+			std::cout << "Train error: " << errors * 100.0 / size << std::endl;
+			delete[] predict;
+		}
+		if (val_size > 0) {
+			float* predict = new float[val_size];
+			offset = 0;
+			for (int b = 0; b < val_size / batch; b++) {
+				callCuda(cudaMemcpy(data, h_data + (size  + offset) * data_dim,
+						sizeof(float) * data_dim * batch, cudaMemcpyHostToDevice));
+				for (int i = 0; i < layers.size(); i++)
+					layers[i]->forward(false);
+				callCuda(cudaMemcpy(predict + offset * label_dim,
+						layers[layers.size() - 1]->data,
+						sizeof(float) * label_dim * batch, cudaMemcpyDeviceToHost));
+				offset += batch;
+			}
+			int errors = 0;
+			for (int i = 0; i < val_size; i++)
+				if (abs(h_label[size + i] - predict[i]) > 0.1)
+					errors++;
+			std::cout << "Validation error: " << errors * 100.0 / val_size << std::endl;
+			delete[] predict;
 		}
 	}
 
@@ -91,13 +132,13 @@ void Network::PushActivation(cudnnActivationMode_t mode) {
 	layers.push_back(activation);
 }
 
-void Network::PushReLU(int output_size, float alpha) {
-	ReLU* relu = new ReLU(layers.back(), output_size, alpha);
+void Network::PushReLU(int output_size, float dropout_rate, float alpha) {
+	ReLU* relu = new ReLU(layers.back(), output_size, dropout_rate, alpha);
 	layers.push_back(relu);
 }
 
-void Network::PushSoftmax(int output_size, float alpha) {
-	Softmax* softmax = new Softmax(layers.back(), output_size, alpha);
+void Network::PushSoftmax(int output_size, float dropout_rate, float alpha) {
+	Softmax* softmax = new Softmax(layers.back(), output_size, dropout_rate, alpha);
 	layers.push_back(softmax);
 }
 
@@ -120,10 +161,8 @@ void Network::Test(float* label) {
 	for (int b = 0; b < size / batch; b++) {
 		callCuda(cudaMemcpy(data, h_data + offset * data_dim,
 				sizeof(float) * data_dim * batch, cudaMemcpyHostToDevice));
-		callCuda(cudaMemcpy(this->label, h_label + offset * label_dim,
-				sizeof(float) * label_dim * batch, cudaMemcpyHostToDevice));
 		for (int i = 0; i < layers.size(); i++)
-			layers[i]->forward();
+			layers[i]->forward(false);
 		callCuda(cudaMemcpy(label + offset * label_dim,
 				layers[layers.size() - 1]->data,
 				sizeof(float) * label_dim * batch, cudaMemcpyDeviceToHost));

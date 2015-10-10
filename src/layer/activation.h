@@ -19,7 +19,7 @@ public:
 	Activation(Layer* prev, cudnnActivationMode_t mode);
 	virtual ~Activation();
 
-	void forward();
+	void forward(bool train = true);
 	void backward();
 	void update();
 };

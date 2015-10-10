@@ -14,16 +14,20 @@ namespace layer {
 
 // fully connected layer
 class Neuron : public Layer {
+private:
+	float dropout_rate;
 protected:
 	float* tmp_data; // z
 	float* tmp_diff; // difference of z
 	int input_size; // output size of previous layer
 	int output_size; // output size
 	float* one; // full one vector for bias
+	void dropout(bool train);
 public:
-	Neuron(Layer* _prev, int _output_size, float alpha); // data is output_size * batch
+	// data is output_size * batch
+	Neuron(Layer* _prev, int _output_size, float dropout_rate, float alpha);
 	virtual ~Neuron();
-	void forward();
+	void forward(bool train = true);
 	virtual void forward_activation() = 0; // support different activation function
 	void backward();
 	virtual void backward_activation() = 0;

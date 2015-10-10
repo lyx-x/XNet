@@ -11,8 +11,8 @@ using namespace global;
 
 namespace layer {
 
-Softmax::Softmax(Layer* _prev, int _output_size, float alpha) :
-		Neuron(_prev, _output_size, alpha) {}
+Softmax::Softmax(Layer* _prev, int _output_size, float dropout_rate, float alpha) :
+		Neuron(_prev, _output_size, dropout_rate, alpha) {}
 
 Softmax::~Softmax() {}
 

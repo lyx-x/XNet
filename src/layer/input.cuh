@@ -16,7 +16,7 @@ class Input: public Layer {
 public:
 	Input(int n, int c, int h, int w, float* _data);
 	virtual ~Input();
-	void forward();
+	void forward(bool train = true);
 	void backward();
 	void update();
 };

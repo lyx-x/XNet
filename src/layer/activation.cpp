@@ -39,7 +39,7 @@ Activation::~Activation() {
 	callCuda(cudaFree(diff));
 }
 
-void Activation::forward() {
+void Activation::forward(bool train) {
 	float a = 1;
 	float b = 0;
 	callCudnn(cudnnActivationForward(cudnnHandle, mode, &a, prev->t_data,

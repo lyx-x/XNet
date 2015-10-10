@@ -28,7 +28,7 @@ Input::~Input() {
 	data = NULL;
 }
 
-void Input::forward() {
+void Input::forward(bool train) {
 	// nothing
 }
 

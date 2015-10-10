@@ -14,7 +14,7 @@ namespace layer {
 
 class Softmax: public Neuron {
 public:
-	Softmax(Layer* _prev, int _output_size, float alpha);
+	Softmax(Layer* _prev, int _output_size, float dropout_rate, float alpha);
 	virtual ~Softmax();
 	void forward_activation();
 	void backward_activation();

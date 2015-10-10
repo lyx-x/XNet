@@ -43,7 +43,7 @@ Pooling::~Pooling() {
 	callCuda(cudaFree(diff));
 }
 
-void Pooling::forward() {
+void Pooling::forward(bool train) {
 	float a = 1;
 	float b = 0;
 	callCudnn(cudnnPoolingForward(cudnnHandle, descriptor, &a, prev->t_data,

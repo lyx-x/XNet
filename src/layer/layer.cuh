@@ -29,7 +29,7 @@ public:
 	virtual ~Layer();
 
 	// three virtual method that all layers should have
-	virtual void forward() = 0;
+	virtual void forward(bool train = true) = 0;
 	virtual void backward() = 0;
 	virtual void update() = 0;
 

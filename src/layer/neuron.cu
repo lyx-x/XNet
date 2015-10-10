@@ -11,7 +11,8 @@ using namespace global;
 
 namespace layer {
 
-Neuron::Neuron(Layer* _prev, int _output_size, float alpha) : Layer(alpha) {
+Neuron::Neuron(Layer* _prev, int _output_size, float dropout_rate, float alpha):
+		Layer(alpha) {
 	prev = _prev;
 	prev->next = this;
 
@@ -42,6 +43,8 @@ Neuron::Neuron(Layer* _prev, int _output_size, float alpha) : Layer(alpha) {
 
 	callCuda(cudaMalloc(&one, sizeof(float) * batch));
 	utils::setGpuValue(one, batch, 1);
+
+	this->dropout_rate = dropout_rate;
 }
 
 Neuron::~Neuron() {
@@ -57,9 +60,10 @@ Neuron::~Neuron() {
 	callCuda(cudaFree(one));
 }
 
-void Neuron::forward() {
+void Neuron::forward(bool train) {
 	float a = 1;
 	float b = 0;
+	dropout(train);
 	callCuda(cublasSgemm(cublasHandle, CUBLAS_OP_T, CUBLAS_OP_N, output_size, batch,
 			input_size,	&a, param, input_size, prev->data, input_size, &b, tmp_data,
 			output_size));
@@ -86,7 +90,13 @@ void Neuron::update() {
 	callCuda(cublasSaxpy(cublasHandle, param_size, &alpha, gradient, 1, param, 1));
 	callCuda(cublasSaxpy(cublasHandle, param_bias_size,	&alpha,
 			gradient_bias, 1, param_bias, 1));
-	alpha = alpha / 1.0001;
+}
+
+void Neuron::dropout(bool train) {
+	if (train)
+		utils::dropGpuValue(prev->data, prev->data_size, dropout_rate);
+	else
+		utils::scaleGpuValue(prev->data, prev->data_size, 1 - dropout_rate);
 }
 
 }

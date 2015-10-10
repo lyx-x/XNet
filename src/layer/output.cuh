@@ -19,7 +19,7 @@ public:
 public:
 	Output(Layer* _prev, float* _label, int _label_dim, int _batch);
 	virtual ~Output();
-	void forward();
+	void forward(bool train = true);
 	void backward();
 	void update();
 };

@@ -79,33 +79,34 @@ int train_mnist() {
 	// build LeNet
 	int data_dim = width * height * channels;
 	int label_dim = 1; // 1 column per label
-	int count = train_size; // data size
+	int val_size = 10000;
+	int count = train_size - val_size; // data size
 	int batch_size = 50;
 	cout << "Batch size: " << batch_size << endl;
 
 	model::Network network(h_train_images, data_dim, h_train_labels, label_dim,
-			count, batch_size);
+			count, val_size, batch_size);
 	network.PushInput(channels, height, width); // 1 28 28
-	network.PushConvolution(20, 5, -10e-3f);
+	network.PushConvolution(20, 5, -5e-3f);
 	network.PushActivation(CUDNN_ACTIVATION_RELU);
 	network.PushPooling(2, 2);
-	network.PushConvolution(50, 5, -10e-3f);
+	network.PushConvolution(50, 5, -5e-3f);
 	network.PushActivation(CUDNN_ACTIVATION_RELU);
 	network.PushPooling(2, 2);
-	network.PushReLU(400, -10e-3f);
-	network.PushSoftmax(10, -10e-3f);
+	network.PushReLU(800, 0.5, -5e-3f);
+	network.PushSoftmax(10, 0.2, -8e-3f);
 	network.PushOutput(10);
 	network.PrintGeneral();
 
 	// train the model
-	int iteration = 10;
+	int iteration = 20;
 	cout << "Train " << iteration << " times ..." << endl;
 	//network.ReadParams(mnist_file);
 	network.Train(iteration);
 	cout << "End of training ..." << endl;
 
-	network.SaveParams(mnist_file);
-
+	//network.SaveParams(mnist_file);
+	/*
 	// read test cases
 	cout << "Reading test data" << endl;
 
@@ -155,7 +156,7 @@ int train_mnist() {
 	delete[] test_labels;
 	delete[] h_test_images;
 	delete[] h_test_labels;
-
+	*/
 	delete[] train_images;
 	delete[] train_labels;
 	delete[] h_train_images;
@@ -172,7 +173,7 @@ void camera_mnist() {
 	float* h_label_predict = new float[1];
 
 	int data_dim = width * height * channels;
-	model::Network network(h_image, data_dim, h_label_predict, 1, 1, 1);
+	model::Network network(h_image, data_dim, h_label_predict, 1, 1, 0, 1);
 	network.PushInput(channels, height, width); // 1 28 28
 	network.PushConvolution(20, 5, -10e-3f);
 	network.PushActivation(CUDNN_ACTIVATION_RELU);
@@ -180,8 +181,8 @@ void camera_mnist() {
 	network.PushConvolution(50, 5, -10e-3f);
 	network.PushActivation(CUDNN_ACTIVATION_RELU);
 	network.PushPooling(2, 2);
-	network.PushReLU(400, -10e-3f);
-	network.PushSoftmax(10, -10e-3f);
+	network.PushReLU(400, 0.5, -10e-3f);
+	network.PushSoftmax(10, 0.5, -10e-3f);
 	network.PushOutput(10);
 	network.ReadParams(mnist_file);
 
@@ -254,7 +255,7 @@ int train_cifar10() {
 	int batch_size = 50;
 
 	model::Network network(h_train_images, data_dim, h_train_labels, label_dim,
-			count, batch_size);
+			count, 0, batch_size);
 	network.PushInput(channels, height, width); // 1 28 28
 	network.PushConvolution(32, 5, -24e-3f);
 	network.PushActivation(CUDNN_ACTIVATION_RELU);
@@ -264,8 +265,8 @@ int train_cifar10() {
 	network.PushPooling(2, 2);
 	//network.PushConvolution(48, 3, -18e-3f);
 	//network.PushPooling(2, 2);
-	network.PushReLU(64, -18e-3f);
-	network.PushSoftmax(10, -15e-3f);
+	network.PushReLU(64, 0.5, -18e-3f);
+	network.PushSoftmax(10, 0.5, -15e-3f);
 	network.PushOutput(10);
 	network.PrintGeneral();
 

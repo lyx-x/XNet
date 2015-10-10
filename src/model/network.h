@@ -11,6 +11,7 @@
 #include <iostream>
 #include <vector>
 #include <typeinfo>
+#include <cmath>
 
 #include "../layer/layer.cuh"
 #include "../layer/input.cuh"
@@ -37,10 +38,10 @@ private:
 	float* label; // label on device
 	float* h_label; // label on host
 	int label_dim; // dimension of one label (usually 1)
-	int size, batch; // whole size of data, batch size
+	int size, val_size, batch; // whole size of data, batch size
 public:
 	Network(float* data, int data_dim, float* label, int label_dim,
-			int count, int _batch);
+			int count, int val_size, int _batch);
 	virtual ~Network();
 	void Train(int iteration, bool debug = false); // train the network
 	void PushInput(int c, int h, int w);
@@ -48,8 +49,8 @@ public:
 	void PushConvolution(int c, int kernel, float alpha);
 	void PushPooling(int size, int stride);
 	void PushActivation(cudnnActivationMode_t mode);
-	void PushReLU(int output_size, float alpha);
-	void PushSoftmax(int output_size, float alpha);
+	void PushReLU(int output_size, float dropout_rate, float alpha);
+	void PushSoftmax(int output_size, float dropout_rate, float alpha);
 	void Pop(); // remove last layer
 
 	void SwitchData(float* h_data, float* h_label, int count);
