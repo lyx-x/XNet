@@ -30,17 +30,16 @@
 #include "opencv2/opencv.hpp"
 
 using namespace cv;
-
 using namespace std;
 
 string mnist_file = "params/mnist/";
 string cifar10_file = "params/cifar10/";
 
 int train_mnist() {
-	string train_images_path = "data/MNIST/train-images.idx3-ubyte";
-	string train_labels_path = "data/MNIST/train-labels.idx1-ubyte";
-	string test_images_path = "data/MNIST/t10k-images.idx3-ubyte";
-	string test_labels_path = "data/MNIST/t10k-labels.idx1-ubyte";
+	string train_images_path = "../Data/MNIST/train-images.idx3-ubyte";
+	string train_labels_path = "../Data/MNIST/train-labels.idx1-ubyte";
+	string test_images_path = "../Data/MNIST/t10k-images.idx3-ubyte";
+	string test_labels_path = "../Data/MNIST/t10k-labels.idx1-ubyte";
 
 	int channels = 1;
 	int width, height;
@@ -87,14 +86,14 @@ int train_mnist() {
 	model::Network network(h_train_images, data_dim, h_train_labels, label_dim,
 			count, val_size, batch_size);
 	network.PushInput(channels, height, width); // 1 28 28
-	network.PushConvolution(20, 5, -12e-3f);
+	network.PushConvolution(20, 5, -10e-3f);
 	network.PushActivation(CUDNN_ACTIVATION_RELU);
 	network.PushPooling(2, 2);
-	network.PushConvolution(50, 5, -12e-3f);
+	network.PushConvolution(50, 5, -10e-3f);
 	network.PushActivation(CUDNN_ACTIVATION_RELU);
 	network.PushPooling(2, 2);
 	network.PushReLU(800, 0.5, -10e-3f);
-	network.PushSoftmax(10, 0.25, -10e-3f);
+	network.PushSoftmax(10, 0.25, -8e-3f);
 	network.PushOutput(10);
 	network.PrintGeneral();
 
@@ -220,9 +219,9 @@ void camera_mnist() {
 }
 
 int train_cifar10() {
-	string dir = "data/CIFAR10/data_batch_";
+	string dir = "../Data/CIFAR10/data_batch_";
 	string extension = ".bin";
-	string test_file = "data/CIFAR10/test_batch.bin";
+	string test_file = "../Data/CIFAR10/test_batch.bin";
 
 	int channels = 3;
 	int width = 32, height = 32;
