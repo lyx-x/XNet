@@ -23,3 +23,5 @@ do
 		echo "$Label $Num" >> $Dest;
 	done
 done < $Cat
+
+echo "0 0" >> $Dest;

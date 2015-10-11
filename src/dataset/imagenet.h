@@ -8,6 +8,11 @@
 #ifndef IMAGENET_H_
 #define IMAGENET_H_
 
+#include <vector>
+#include <map>
+#include <algorithm>
+#include <cassert>
+
 #include "../model/network.h"
 #include "../utils/read_data.h"
 
