@@ -7,6 +7,8 @@
 
 #include "network.h"
 
+#define label_count 10
+
 using namespace layer;
 
 namespace model {
@@ -50,11 +52,13 @@ void Network::Train(int iteration, float lambda, bool debug) {
 			callCuda(cudaMemcpy(label, h_label + offset * label_dim,
 					sizeof(float) * label_dim * batch, cudaMemcpyHostToDevice));
 			// forward propagation
-			for (int i = 0; i < layers.size() - 1; i++)
+			for (int i = 0; i < layers.size() - 1; i++) {
 				layers[i]->forward();
+			}
 			if (debug) {
 				std::cout << h_label[offset * label_dim] << std::endl;
-				utils::printGpuMatrix(layers[layers.size() - 2]->data, 10, 1, 10, 4);
+				utils::printGpuMatrix(layers[layers.size() - 2]->data,
+						2 * 10, 10, 2, 4);
 			}
 			// back propagation
 			for (int i = layers.size() - 1; i > 0; i--) {
@@ -177,7 +181,7 @@ void Network::PrintGeneral() {
 	std::cout << "Layers: " << layers.size() << std::endl;
 	int i = 0;
 	for (Layer* l : layers)
-		std::cout << " - " << i++ << ' ' << l->data_size << std::endl;
+		std::cout << " - " << i++ << ' ' << l->data_size << ' ' << l->param_size << std::endl;
 }
 
 void Network::PrintData(int offset, int r, int c, int precision) {

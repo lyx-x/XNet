@@ -49,17 +49,17 @@ int train() {
 
 	model::Network network(h_train_images, data_dim, h_train_labels, label_dim,
 			count, validation_size, batch_size);
-	network.PushInput(channels, height, width); // 1 28 28
-	network.PushConvolution(32, 5, -24e-3f);
+	network.PushInput(channels, height, width); // 3 32 32
+	network.PushConvolution(32, 5, -12e-1f);
 	network.PushActivation(CUDNN_ACTIVATION_RELU);
 	network.PushPooling(2, 2);
-	network.PushConvolution(48, 5, -24e-3f);
+	network.PushConvolution(48, 5, -12e-1f);
 	network.PushActivation(CUDNN_ACTIVATION_RELU);
 	network.PushPooling(2, 2);
 	//network.PushConvolution(48, 3, -18e-3f);
 	//network.PushPooling(2, 2);
-	network.PushReLU(64, 0., -18e-3f);
-	network.PushSoftmax(10, 0., -15e-3f);
+	network.PushReLU(64, 0., -8e-1f);
+	network.PushSoftmax(10, 0., -8e-1f);
 	network.PushOutput(10);
 	network.PrintGeneral();
 
@@ -67,7 +67,7 @@ int train() {
 	int iteration = 24;
 	cout << "Train " << iteration << " times ..." << endl;
 	network.Train(iteration, 0.96);
-	network.SaveParams(cifar10_file);
+	//network.SaveParams(cifar10_file);
 	cout << "End of training ..." << endl;
 
 	uint8_t* test = new uint8_t[test_size * (data_dim + label_dim)];

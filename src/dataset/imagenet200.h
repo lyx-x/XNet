@@ -1,12 +1,12 @@
 /*
- * imagenet.h
+ * imagenet200.h
  *
- *  Created on: Oct 11, 2015
+ *  Created on: Oct 15, 2015
  *      Author: lyx
  */
 
-#ifndef IMAGENET_H_
-#define IMAGENET_H_
+#ifndef IMAGENET200_H_
+#define IMAGENET200_H_
 
 #include <vector>
 #include <map>
@@ -26,10 +26,10 @@
 using namespace cv;
 using namespace std;
 
-namespace imagenet {
+namespace imagenet200 {
 
 int train();
 
 }
 
-#endif /* IMAGENET_H_ */
+#endif /* IMAGENET200_H_ */

@@ -24,10 +24,10 @@ string to_path(Image& image) {
 	return "../Data/ImageNet/n" + label + "/n" + label + "_" + number + ".JPEG";
 }
 
-int label_dim = 2; // use a small part of ImageNet
-string label_file_path = "utils/ImageNet/cat" + to_string(label_dim) + ".file";
+int label_count = 5; // use a small part of ImageNet
+string label_file_path = "utils/ImageNet/cat" + to_string(label_count) + ".file";
 
-vector<Image> images;
+vector<Image> images; // image list
 map<int, int> label; // real label to scaled label, from 0 to label_dim - 1
 
 // read all image informations: folder and file name / number
@@ -48,35 +48,83 @@ void prepare() {
 	}
 	label_file.close();
 
-	assert(label.size() == label_dim);
+	assert(label.size() == label_count);
 }
 
 int train() {
-	int batch_size = 20;
+	srand(time(NULL));
+
+	int batch_size = 2e1;
+	int iteration_size = 1e4; // 50 batches in one iteration
+	int iteration = 50; // 5e5 images
 
 	// predefined dimensions
-	int weight = 256;
+	int width = 256;
 	int height = 256;
 	int channel = 3;
-	int data_dim = weight * height * channel;
+	int data_dim = width * height * channel;
+	int label_dim = 1;
 
 	prepare();
 
-	for (Image i: images)
-		cout << to_path(i) << endl;
+	iteration = 1;
+	iteration_size = 100;
+	batch_size = 1;
 
-	float* h_train_images;
-	float* h_train_labels;
-	float* _train;
+	float* h_train_images = new float[iteration_size * data_dim];
+	float* h_train_labels = new float[iteration_size * label_dim];
+
+	model::Network network(h_train_images, data_dim, h_train_labels, label_dim,
+			iteration_size, 0, batch_size);
+	network.PushInput(channel, height, width); // 3 256 256
+	network.PushConvolution(48, 11, -20e-2f);
+	network.PushActivation(CUDNN_ACTIVATION_RELU);
+	network.PushPooling(2, 2);
+	network.PushConvolution(128, 5, -20e-2f);
+	network.PushActivation(CUDNN_ACTIVATION_RELU);
+	network.PushPooling(2, 2);
+	network.PushConvolution(192, 3, -20e-2f);
+	network.PushActivation(CUDNN_ACTIVATION_RELU);
+	network.PushConvolution(192, 3, -20e-2f);
+	network.PushActivation(CUDNN_ACTIVATION_RELU);
+	network.PushConvolution(128, 3, -20e-2f);
+	network.PushActivation(CUDNN_ACTIVATION_RELU);
+	network.PushPooling(2, 2);
+	network.PushReLU(2048, 0, -20e-2f);
+	network.PushReLU(2048, 0, -20e-2f);
+	network.PushSoftmax(label_count, 0, -20e-2f);
+	network.PushOutput(label_count);
+	network.PrintGeneral();
+
+	for (int i = 0; i < iteration; i++) {
+		// load iteration_size images randomly
+		int r;
+		int offset = 0;
+		for (int j = 0; j < iteration_size; j++) {
+			r = rand() % images.size();
+			Mat im = imread(to_path(images[r]));
+			assert(data_dim == im.cols * im.rows * im.elemSize());
+			for (int k = 0; k < width * height; k++) {
+				for (int c = 0; c < channel; c++)
+					h_train_images[k + offset + c * width * height]
+					               = ((float)im.at<Vec3b>(k).val[c]) / 255.;
+			}
+			h_train_labels[j] = label[images[r].label];
+			offset += data_dim;
+		}
+
+		// train the network several time
+		network.Train(10, 1, false);
+	}
+
 	//delete[] h_test_labels_predict;
 
 	//delete[] h_test_images;
 	//delete[] h_test_labels;
 	//delete[] _test;
 
-	//delete[] h_train_images;
-	//delete[] h_train_labels;
-	//delete[] _train;
+	delete[] h_train_images;
+	delete[] h_train_labels;
 
 	return 0;
 }

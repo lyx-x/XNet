@@ -24,11 +24,14 @@ void Softmax::forward_activation() {
 }
 
 void Softmax::backward_activation() {
-	float a = 1;
+	float a = 1.0 / batch;
 	float b = 0;
 	callCudnn(cudnnSoftmaxBackward(cudnnHandle, CUDNN_SOFTMAX_ACCURATE,
 			CUDNN_SOFTMAX_MODE_CHANNEL,	&a, t_data, data, t_data, next->diff,
 			&b, t_data, tmp_diff));
+	//utils::setGpuValue(tmp_diff, data_size, 0);
+	//callCuda(cublasSaxpy(cublasHandle, data_size, &a, next->diff, 1, tmp_diff, 1));
+	//utils::printGpuMatrix(next->diff, 20, 10, 2, 4);
 }
 
 }

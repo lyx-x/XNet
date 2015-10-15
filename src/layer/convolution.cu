@@ -34,6 +34,8 @@ Convolution::Convolution(Layer* _prev, int n ,int c, int kernel, float alpha) :
 	callCuda(cudaMalloc(&gradient, sizeof(float) * param_size));
 	utils::setGpuNormalValue(param, param_size);
 
+	//utils::printGpuMatrix(param, param_size, _c * kernel, c * kernel, 8);
+
 	int h = _h - kernel + 1;
 	int w = _w - kernel + 1;
 
@@ -52,7 +54,9 @@ Convolution::Convolution(Layer* _prev, int n ,int c, int kernel, float alpha) :
 	param_bias_size =  c;
 	callCuda(cudaMalloc(&param_bias, sizeof(float) * param_bias_size));
 	callCuda(cudaMalloc(&gradient_bias, sizeof(float) * param_bias_size));
-	utils::setGpuNormalValue(param_bias, param_bias_size);
+	utils::setGpuNormalValue(param_bias, param_size);
+
+	//utils::printGpuMatrix(param_bias, param_bias_size, 1, c, 8);
 
 	callCudnn(cudnnGetConvolutionForwardAlgorithm(cudnnHandle, prev->t_data, filter,
 			descriptor, t_data,	CUDNN_CONVOLUTION_FWD_PREFER_FASTEST, 0, &algo));
@@ -98,9 +102,13 @@ void Convolution::backward() {
 }
 
 void Convolution::update() {
+	//utils::printGpuMatrix(next->diff,	10, 1, 10, 10);
+	//utils::printGpuMatrix(param,	10, 1, 10, 7);
+	//utils::printGpuMatrix(gradient,	10, 1, 10, 10);
 	callCuda(cublasSaxpy(cublasHandle, param_size, &alpha, gradient, 1, param, 1));
 	callCuda(cublasSaxpy(cublasHandle, param_bias_size,	&alpha,
 			gradient_bias, 1, param_bias, 1));
+	///utils::printGpuMatrix(param,	10, 1, 10, 7);
 }
 
 }
