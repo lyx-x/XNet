@@ -69,9 +69,7 @@ void Neuron::forward(bool train) {
 			output_size));
 	callCuda(cublasSgemm(cublasHandle, CUBLAS_OP_N, CUBLAS_OP_N, output_size, batch,
 			1, &a, param_bias, output_size,	one, 1,	&a,	tmp_data, output_size));
-	//utils::printGpuMatrix(tmp_data, output_size * batch, output_size, batch, 6);
 	forward_activation();
-	//utils::printGpuMatrix(data, output_size * batch, output_size, batch, 6);
 }
 
 void Neuron::backward() {
@@ -89,13 +87,9 @@ void Neuron::backward() {
 }
 
 void Neuron::update() {
-	//utils::printGpuMatrix(tmp_diff,	20, 10, 2, 10);
-	//utils::printGpuMatrix(param,	10, 1, 10, 7);
-	//utils::printGpuMatrix(gradient,	10, 1, 10, 10);
 	callCuda(cublasSaxpy(cublasHandle, param_size, &alpha, gradient, 1, param, 1));
 	callCuda(cublasSaxpy(cublasHandle, param_bias_size,	&alpha,
 			gradient_bias, 1, param_bias, 1));
-	//utils::printGpuMatrix(param,	10, 1, 10, 7);
 }
 
 void Neuron::dropout(bool train) {
