@@ -38,8 +38,10 @@ Neuron::Neuron(Layer* _prev, int _output_size, float dropout_rate, float alpha):
 	callCuda(cudaMalloc(&param_bias, sizeof(float) * param_bias_size));
 	callCuda(cudaMalloc(&gradient, sizeof(float) * param_size));
 	callCuda(cudaMalloc(&gradient_bias, sizeof(float) * param_bias_size));
-	utils::setGpuNormalValue(param, param_size);
-	utils::setGpuNormalValue(param_bias, param_size);
+	//utils::setGpuNormalValue(param, param_size, param_size);
+	//utils::setGpuNormalValue(param_bias, param_bias_size, param_size);
+	utils::setGpuUniformValue(param, param_size, input_size, output_size);
+	utils::setGpuUniformValue(param_bias, param_bias_size, input_size, output_size);
 
 	callCuda(cudaMalloc(&one, sizeof(float) * batch));
 	utils::setGpuValue(one, batch, 1);
@@ -87,6 +89,9 @@ void Neuron::backward() {
 }
 
 void Neuron::update() {
+	//utils::printGpuMatrix(prev->data, 10, 1, 10, 8);
+	//utils::printGpuMatrix(param, 10, 1, 10, 9);
+	//utils::printGpuMatrix(gradient, 10, 1, 10, 10);
 	callCuda(cublasSaxpy(cublasHandle, param_size, &alpha, gradient, 1, param, 1));
 	callCuda(cublasSaxpy(cublasHandle, param_bias_size,	&alpha,
 			gradient_bias, 1, param_bias, 1));

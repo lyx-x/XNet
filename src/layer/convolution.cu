@@ -32,7 +32,6 @@ Convolution::Convolution(Layer* _prev, int n ,int c, int kernel, float alpha) :
 	param_size =  _c * c * kernel * kernel;
 	callCuda(cudaMalloc(&param, sizeof(float) * param_size));
 	callCuda(cudaMalloc(&gradient, sizeof(float) * param_size));
-	utils::setGpuNormalValue(param, param_size);
 
 	//utils::printGpuMatrix(param, param_size, _c * kernel, c * kernel, 8);
 
@@ -44,9 +43,7 @@ Convolution::Convolution(Layer* _prev, int n ,int c, int kernel, float alpha) :
 			n, c, h, w));
 	data_size = n * c * h * w;
 	callCuda(cudaMalloc(&data, sizeof(float) * data_size));
-	callCuda(cudaMalloc(&tmp_data, sizeof(float) * data_size));
 	callCuda(cudaMalloc(&diff, sizeof(float) * prev->data_size));
-	callCuda(cudaMalloc(&tmp_diff, sizeof(float) * data_size));
 
 	callCudnn(cudnnCreateTensorDescriptor(&t_bias));
 	callCudnn(cudnnSetTensor4dDescriptor(t_bias, CUDNN_TENSOR_NCHW,	CUDNN_DATA_FLOAT,
@@ -54,9 +51,9 @@ Convolution::Convolution(Layer* _prev, int n ,int c, int kernel, float alpha) :
 	param_bias_size =  c;
 	callCuda(cudaMalloc(&param_bias, sizeof(float) * param_bias_size));
 	callCuda(cudaMalloc(&gradient_bias, sizeof(float) * param_bias_size));
-	utils::setGpuNormalValue(param_bias, param_size);
 
-	//utils::printGpuMatrix(param_bias, param_bias_size, 1, c, 8);
+	utils::setGpuUniformValue(param, param_size, prev->data_size / batch, data_size / batch);
+	utils::setGpuUniformValue(param_bias, param_bias_size, prev->data_size / batch, data_size / batch);
 
 	callCudnn(cudnnGetConvolutionForwardAlgorithm(cudnnHandle, prev->t_data, filter,
 			descriptor, t_data,	CUDNN_CONVOLUTION_FWD_PREFER_FASTEST, 0, &algo));
@@ -71,9 +68,7 @@ Convolution::~Convolution() {
 	callCudnn(cudnnDestroyTensorDescriptor(t_data));
 	callCudnn(cudnnDestroyTensorDescriptor(t_bias));
 	callCuda(cudaFree(data));
-	callCuda(cudaFree(tmp_data));
 	callCuda(cudaFree(diff));
-	callCuda(cudaFree(tmp_diff));
 	callCuda(cudaFree(param));
 	callCuda(cudaFree(param_bias));
 	callCuda(cudaFree(gradient));

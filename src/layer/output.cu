@@ -67,7 +67,6 @@ Output::~Output() {
 }
 
 void Output::forward(bool train) {
-	//utils::setGpuValue(data, data_size, 0);
 	predict<<< (batch + 127) / 128, 128>>> (prev->data, label_dim, batch, data);
 }
 

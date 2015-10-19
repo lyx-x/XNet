@@ -54,11 +54,12 @@ void Network::Train(int iteration, float lambda, bool debug) {
 			// forward propagation
 			for (int i = 0; i < layers.size() - 1; i++) {
 				layers[i]->forward();
+				//utils::printGpuMatrix(layers[i]->data, 10, 1, 10, 6);
 			}
 			if (debug) {
 				std::cout << h_label[offset * label_dim] << std::endl;
 				utils::printGpuMatrix(layers[layers.size() - 2]->data,
-						2 * 10, 10, 2, 4);
+						10, 1, 10, 4);
 			}
 			// back propagation
 			for (int i = layers.size() - 1; i > 0; i--) {
