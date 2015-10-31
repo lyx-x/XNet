@@ -39,7 +39,7 @@ void printGpuMax(float* d_m, int n, int precision) {
 	int result;
 	callCuda(cublasIsamax(global::cublasHandle, n, d_m, 1, &result));
 	float ans;
-	callCuda(cudaMemcpy(&ans, d_m + result, sizeof(float), cudaMemcpyDeviceToHost));
+	callCuda(cudaMemcpy(&ans, d_m + result - 1, sizeof(float), cudaMemcpyDeviceToHost));
 	std::cout << std::fixed << std::setprecision(precision) <<
 			"Max: " << ans << std::endl;
 

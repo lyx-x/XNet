@@ -62,14 +62,14 @@ int train() {
 	model::Network network(h_train_images, data_dim, h_train_labels, label_dim,
 			count, val_size, batch_size);
 	network.PushInput(channels, height, width); // 1 28 28
-	network.PushConvolution(20, 5, -8e-1f, 0.01f);
+	network.PushConvolution(20, 5, -12e-1f, 0.01f);
 	network.PushActivation(CUDNN_ACTIVATION_RELU);
 	network.PushPooling(2, 2);
-	network.PushConvolution(40, 5, -8e-1f, 0.01f);
+	network.PushConvolution(40, 5, -12e-1f, 0.01f);
 	network.PushActivation(CUDNN_ACTIVATION_RELU);
 	network.PushPooling(2, 2);
-	network.PushReLU(800, 0.5, -6e-1f, 0.01f);
-	network.PushSoftmax(10, 0.25, -6e-1f, 0.01f);
+	network.PushReLU(800, 0.6, -10e-1f, 0.01f);
+	network.PushSoftmax(10, 0.25, -10e-1f, 0.01f);
 	network.PushOutput(10);
 	network.PrintGeneral();
 
@@ -77,7 +77,7 @@ int train() {
 	int iteration = 50;
 	cout << "Train " << iteration << " times ..." << endl;
 	//network.ReadParams(mnist_file);
-	network.Train(iteration, 0.95);
+	network.Train(iteration, 0.96);
 	cout << "End of training ..." << endl;
 
 	//network.SaveParams(mnist_file);
