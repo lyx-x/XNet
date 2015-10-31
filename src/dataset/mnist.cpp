@@ -68,7 +68,7 @@ int train() {
 	network.PushConvolution(40, 5, -12e-1f, 0.01f);
 	network.PushActivation(CUDNN_ACTIVATION_RELU);
 	network.PushPooling(2, 2);
-	network.PushReLU(800, 0.6, -10e-1f, 0.01f);
+	network.PushReLU(400, 0.6, -10e-1f, 0.01f);
 	network.PushSoftmax(10, 0.25, -10e-1f, 0.01f);
 	network.PushOutput(10);
 	network.PrintGeneral();
