@@ -65,11 +65,11 @@ int train() {
 	network.PushConvolution(20, 5, -8e-1f);
 	network.PushActivation(CUDNN_ACTIVATION_RELU);
 	network.PushPooling(2, 2);
-	network.PushConvolution(50, 5, -8e-1f);
+	network.PushConvolution(40, 5, -8e-1f);
 	network.PushActivation(CUDNN_ACTIVATION_RELU);
 	network.PushPooling(2, 2);
-	network.PushReLU(800, 0.5, -5e-1f);
-	network.PushSoftmax(10, 0.25, -5e-1f);
+	network.PushReLU(800, 0.5, -6e-1f);
+	network.PushSoftmax(10, 0.25, -6e-1f);
 	network.PushOutput(10);
 	network.PrintGeneral();
 
@@ -77,7 +77,7 @@ int train() {
 	int iteration = 50;
 	cout << "Train " << iteration << " times ..." << endl;
 	//network.ReadParams(mnist_file);
-	network.Train(iteration, 0.96);
+	network.Train(iteration, 0.95);
 	cout << "End of training ..." << endl;
 
 	//network.SaveParams(mnist_file);
