@@ -11,8 +11,8 @@ using namespace global;
 
 namespace layer {
 
-Convolution::Convolution(Layer* _prev, int n ,int c, int kernel, float alpha) :
-		Layer(alpha) {
+Convolution::Convolution(Layer* _prev, int n ,int c, int kernel, float alpha,
+		float sigma) : Layer(alpha) {
 	prev = _prev;
 	prev->next = this;
 
@@ -54,8 +54,8 @@ Convolution::Convolution(Layer* _prev, int n ,int c, int kernel, float alpha) :
 
 	//utils::setGpuUniformValue(param, param_size, prev->data_size / batch, data_size / batch);
 	//utils::setGpuUniformValue(param_bias, param_bias_size, prev->data_size / batch, data_size / batch);
-	utils::setGpuNormalValue(param, param_size, 0, 0.01f);
-	utils::setGpuNormalValue(param_bias, param_bias_size, 0, 0.01f);
+	utils::setGpuNormalValue(param, param_size, 0, sigma);
+	utils::setGpuNormalValue(param_bias, param_bias_size, 0, sigma);
 
 	callCudnn(cudnnGetConvolutionForwardAlgorithm(cudnnHandle, prev->t_data, filter,
 			descriptor, t_data,	CUDNN_CONVOLUTION_FWD_PREFER_FASTEST, 0, &algo));
@@ -100,7 +100,7 @@ void Convolution::backward() {
 
 void Convolution::update() {
 	//utils::printGpuMatrix(next->diff,	10, 1, 10, 10);
-	//utils::printGpuMatrix(param,	10, 1, 10, 7);
+	//utils::printGpuMatrix(param, 10, 1, 10, 7);
 	//utils::printGpuMatrix(gradient,	10, 1, 10, 10);
 	callCuda(cublasSaxpy(cublasHandle, param_size, &alpha, gradient, 1, param, 1));
 	callCuda(cublasSaxpy(cublasHandle, param_bias_size,	&alpha,

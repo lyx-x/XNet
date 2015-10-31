@@ -11,8 +11,8 @@ using namespace global;
 
 namespace layer {
 
-Neuron::Neuron(Layer* _prev, int _output_size, float dropout_rate, float alpha):
-		Layer(alpha) {
+Neuron::Neuron(Layer* _prev, int _output_size, float dropout_rate, float alpha,
+		float sigma): Layer(alpha) {
 	prev = _prev;
 	prev->next = this;
 
@@ -40,8 +40,8 @@ Neuron::Neuron(Layer* _prev, int _output_size, float dropout_rate, float alpha):
 	callCuda(cudaMalloc(&gradient_bias, sizeof(float) * param_bias_size));
 	//utils::setGpuNormalValue(param, param_size, param_size);
 	//utils::setGpuNormalValue(param_bias, param_bias_size, param_size);
-	utils::setGpuNormalValue(param, param_size, 0, 0.01f);
-	utils::setGpuNormalValue(param_bias, param_bias_size, 0, 0.01f);
+	utils::setGpuNormalValue(param, param_size, 0, sigma);
+	utils::setGpuNormalValue(param_bias, param_bias_size, 0, sigma);
 	//utils::setGpuUniformValue(param, param_size, input_size, output_size);
 	//utils::setGpuUniformValue(param_bias, param_bias_size, input_size, output_size);
 

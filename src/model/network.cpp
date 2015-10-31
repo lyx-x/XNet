@@ -42,6 +42,10 @@ Network::~Network() {
 void Network::Train(int iteration, float lambda, bool debug) {
 	// train the network multiple times
 	for (int k = 0; k < iteration; k++) {
+		for (int i = layers.size() - 1; i > 0; i--) {
+			if (layers[i]->param_size != 0)
+				utils::printGpuMax(layers[i]->param, layers[i]->param_size);
+		}
 		// divide the training set to small pieces
 		int offset = 0;
 		std::cout << "Iteration " << k + 1 << std::endl;
@@ -68,8 +72,11 @@ void Network::Train(int iteration, float lambda, bool debug) {
 			}
 			offset += batch;
 		}
-		for (int i = layers.size() - 1; i > 0; i--)
+		for (int i = layers.size() - 1; i > 0; i--) {
+			//if (k == 1)
+				//layers[i]->adjust_learning(0.25);
 			layers[i]->adjust_learning(lambda);
+		}
 		if (size > 0) {
 			float* predict = new float[size];
 			offset = 0;
@@ -124,8 +131,8 @@ void Network::PushOutput(int label_dim) {
 	layers.push_back(output);
 }
 
-void Network::PushConvolution(int c, int kernel, float alpha) {
-	Convolution* conv = new Convolution(layers.back(), batch, c, kernel, alpha);
+void Network::PushConvolution(int c, int kernel, float alpha, float sigma) {
+	Convolution* conv = new Convolution(layers.back(), batch, c, kernel, alpha, sigma);
 	layers.push_back(conv);
 }
 
@@ -139,13 +146,13 @@ void Network::PushActivation(cudnnActivationMode_t mode) {
 	layers.push_back(activation);
 }
 
-void Network::PushReLU(int output_size, float dropout_rate, float alpha) {
-	ReLU* relu = new ReLU(layers.back(), output_size, dropout_rate, alpha);
+void Network::PushReLU(int output_size, float dropout_rate, float alpha, float sigma) {
+	ReLU* relu = new ReLU(layers.back(), output_size, dropout_rate, alpha, sigma);
 	layers.push_back(relu);
 }
 
-void Network::PushSoftmax(int output_size, float dropout_rate, float alpha) {
-	Softmax* softmax = new Softmax(layers.back(), output_size, dropout_rate, alpha);
+void Network::PushSoftmax(int output_size, float dropout_rate, float alpha, float sigma) {
+	Softmax* softmax = new Softmax(layers.back(), output_size, dropout_rate, alpha, sigma);
 	layers.push_back(softmax);
 }
 

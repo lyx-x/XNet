@@ -47,11 +47,11 @@ public:
 	void Train(int iteration, float lambda = 1, bool debug = false);
 	void PushInput(int c, int h, int w);
 	void PushOutput(int label_dim);
-	void PushConvolution(int c, int kernel, float alpha);
+	void PushConvolution(int c, int kernel, float alpha, float sigma = 0.01f);
 	void PushPooling(int size, int stride);
 	void PushActivation(cudnnActivationMode_t mode);
-	void PushReLU(int output_size, float dropout_rate, float alpha);
-	void PushSoftmax(int output_size, float dropout_rate, float alpha);
+	void PushReLU(int output_size, float dropout_rate, float alpha, float sigma = 0.01f);
+	void PushSoftmax(int output_size, float dropout_rate, float alpha, float sigma = 0.01f);
 	void Pop(); // remove last layer
 
 	void SwitchData(float* h_data, float* h_label, int count);

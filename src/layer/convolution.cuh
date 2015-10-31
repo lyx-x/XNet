@@ -23,7 +23,8 @@ private:
 	float* tmp_data;
 	float* tmp_diff;
 public:
-	Convolution(Layer* _prev, int n ,int c, int kernel, float alpha);
+	Convolution(Layer* _prev, int n ,int c, int kernel, float alpha,
+			float sigma = 0.01f);
 	virtual ~Convolution();
 	void forward(bool train = true);
 	void backward();

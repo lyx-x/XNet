@@ -56,20 +56,20 @@ int train() {
 	int label_dim = 1; // 1 column per label
 	int val_size = 10000;
 	int count = train_size - val_size; // data size
-	int batch_size = 50;
+	int batch_size = 100;
 	cout << "Batch size: " << batch_size << endl;
 
 	model::Network network(h_train_images, data_dim, h_train_labels, label_dim,
 			count, val_size, batch_size);
 	network.PushInput(channels, height, width); // 1 28 28
-	network.PushConvolution(20, 5, -8e-1f);
+	network.PushConvolution(20, 5, -8e-1f, 0.01f);
 	network.PushActivation(CUDNN_ACTIVATION_RELU);
 	network.PushPooling(2, 2);
-	network.PushConvolution(40, 5, -8e-1f);
+	network.PushConvolution(40, 5, -8e-1f, 0.01f);
 	network.PushActivation(CUDNN_ACTIVATION_RELU);
 	network.PushPooling(2, 2);
-	network.PushReLU(800, 0.5, -6e-1f);
-	network.PushSoftmax(10, 0.25, -6e-1f);
+	network.PushReLU(800, 0.5, -6e-1f, 0.01f);
+	network.PushSoftmax(10, 0.25, -6e-1f, 0.01f);
 	network.PushOutput(10);
 	network.PrintGeneral();
 
