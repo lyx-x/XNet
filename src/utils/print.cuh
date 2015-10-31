@@ -15,11 +15,14 @@
 #include "cublas_v2.h"
 
 #include "utils.h"
+#include "global.h"
 
 namespace utils {
 
 void printCpuMatrix(float* m, int n, int r, int c = 1, int precision = 2);
 void printGpuMatrix(float* d_m, int n, int r, int c = 1, int precision = 2);
+
+void printGpuMax(float* d_m, int n, int precision = 4);
 
 }
 
