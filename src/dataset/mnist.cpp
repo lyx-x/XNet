@@ -62,15 +62,14 @@ int train() {
 	model::Network network(h_train_images, data_dim, h_train_labels, label_dim,
 			count, val_size, batch_size);
 	network.PushInput(channels, height, width); // 1 28 28
-	network.PushConvolution(20, 5, -32e-2f);
+	network.PushConvolution(20, 5, -8e-1f);
 	network.PushActivation(CUDNN_ACTIVATION_RELU);
 	network.PushPooling(2, 2);
-	network.PushConvolution(50, 5, -32e-2f);
+	network.PushConvolution(50, 5, -8e-1f);
 	network.PushActivation(CUDNN_ACTIVATION_RELU);
 	network.PushPooling(2, 2);
-	//network.PushReLU(800, 0.0, -36e-3f);
-	network.PushReLU(800, 0.5, -32e-2f);
-	network.PushSoftmax(10, 0.25, -32e-2f);
+	network.PushReLU(800, 0.5, -5e-1f);
+	network.PushSoftmax(10, 0.25, -5e-1f);
 	network.PushOutput(10);
 	network.PrintGeneral();
 
@@ -78,11 +77,11 @@ int train() {
 	int iteration = 50;
 	cout << "Train " << iteration << " times ..." << endl;
 	//network.ReadParams(mnist_file);
-	network.Train(iteration, 0.95);
+	network.Train(iteration, 0.96);
 	cout << "End of training ..." << endl;
 
 	//network.SaveParams(mnist_file);
-/*
+
 	// read test cases
 	cout << "Reading test data" << endl;
 
@@ -132,7 +131,7 @@ int train() {
 	delete[] test_labels;
 	delete[] h_test_images;
 	delete[] h_test_labels;
-*/
+
 	delete[] train_images;
 	delete[] train_labels;
 	delete[] h_train_images;

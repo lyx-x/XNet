@@ -52,8 +52,10 @@ Convolution::Convolution(Layer* _prev, int n ,int c, int kernel, float alpha) :
 	callCuda(cudaMalloc(&param_bias, sizeof(float) * param_bias_size));
 	callCuda(cudaMalloc(&gradient_bias, sizeof(float) * param_bias_size));
 
-	utils::setGpuUniformValue(param, param_size, prev->data_size / batch, data_size / batch);
-	utils::setGpuUniformValue(param_bias, param_bias_size, prev->data_size / batch, data_size / batch);
+	//utils::setGpuUniformValue(param, param_size, prev->data_size / batch, data_size / batch);
+	//utils::setGpuUniformValue(param_bias, param_bias_size, prev->data_size / batch, data_size / batch);
+	utils::setGpuNormalValue(param, param_size, 0, 0.01f);
+	utils::setGpuNormalValue(param_bias, param_bias_size, 0, 0.01f);
 
 	callCudnn(cudnnGetConvolutionForwardAlgorithm(cudnnHandle, prev->t_data, filter,
 			descriptor, t_data,	CUDNN_CONVOLUTION_FWD_PREFER_FASTEST, 0, &algo));
