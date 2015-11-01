@@ -15,7 +15,7 @@ using namespace std;
 
 namespace utils {
 
-void showImage(float* img, int width, int height, int channel);
+void showImage(float* img, int width, int height, int channel, int offset = 0);
 void flipImage(float* src, float* dest, int width, int height, int channel);
 
 }

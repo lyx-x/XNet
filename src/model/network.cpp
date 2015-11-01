@@ -42,10 +42,12 @@ Network::~Network() {
 void Network::Train(int iteration, float lambda, bool debug) {
 	// train the network multiple times
 	for (int k = 0; k < iteration; k++) {
+		/*
 		for (int i = layers.size() - 1; i > 0; i--) {
 			if (layers[i]->param_size != 0)
 				utils::printGpuMax(layers[i]->param, layers[i]->param_size);
 		}
+		*/
 		// divide the training set to small pieces
 		int offset = 0;
 		std::cout << "Iteration " << k + 1 << std::endl;

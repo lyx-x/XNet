@@ -51,25 +51,67 @@ int train() {
 	for (int i = 0; i < train_size; i++)
 		h_train_labels[i] = (float)train_labels[i];
 
-	// build LeNet
 	int data_dim = width * height * channels;
 	int label_dim = 1; // 1 column per label
 	int val_size = 10000;
-	int count = train_size - val_size; // data size
-	int batch_size = 100;
+	train_size -= val_size; // 50000
+
+	// augment data
+	int augment_train_size = 0;
+	int augment_width = 0;
+	int augment_height = 0;
+	int augment_delta = 1;
+	utils::getDimension(train_size, height, width, augment_delta, augment_train_size,
+			augment_width, augment_height);
+	int augment_data_dim = augment_width * augment_height * channels;
+
+	cout << "Augmented training dataset size: " << augment_train_size << endl;
+
+	float* h_train_images_augmented = new float[(augment_train_size + val_size) *
+	                                            augment_data_dim];
+	float* h_train_labels_augmented = new float[augment_train_size + val_size];
+
+	utils::translationAugmentation(h_train_images, train_size, width, height,
+			augment_delta, h_train_images_augmented, augment_train_size, channels,
+			augment_width, augment_height);
+	utils::translationAugmentation(h_train_images + train_size * data_dim,
+			val_size, width, height, 0,
+			h_train_images_augmented + augment_train_size * augment_data_dim,
+			val_size, channels, augment_width, augment_height);
+
+	for (int i = 0; i < augment_train_size / train_size; i++)
+		for (int j = 0; j < train_size; j++)
+			h_train_labels_augmented[i * train_size + j] = h_train_labels[j];
+	for (int i = 0; i < val_size; i++)
+		h_train_labels_augmented[i + augment_train_size] =
+				h_train_labels[i + train_size];
+
+	// view augmentation
+	/*
+	while (true) {
+		int index = rand() % (val_size + augment_train_size);
+		cout << h_train_labels_augmented[index] << endl;
+		utils::showImage(h_train_images_augmented,
+				augment_width, augment_height, channels, index);
+	}
+	*/
+
+	// build LeNet
+	int batch_size = 50;
 	cout << "Batch size: " << batch_size << endl;
 
-	model::Network network(h_train_images, data_dim, h_train_labels, label_dim,
-			count, val_size, batch_size);
-	network.PushInput(channels, height, width); // 1 28 28
-	network.PushConvolution(20, 5, -12e-1f, 0.01f);
+	model::Network network(h_train_images_augmented, augment_data_dim,
+			h_train_labels_augmented, label_dim, augment_train_size,
+			val_size, batch_size);
+	network.PushInput(channels, augment_height, augment_width); // 1 27 27
+	network.PushConvolution(20, 5, -8e-1f, 0.01f);
 	network.PushActivation(CUDNN_ACTIVATION_RELU);
 	network.PushPooling(2, 2);
-	network.PushConvolution(40, 5, -12e-1f, 0.01f);
+	network.PushConvolution(40, 5, -8e-1f, 0.01f);
 	network.PushActivation(CUDNN_ACTIVATION_RELU);
 	network.PushPooling(2, 2);
-	network.PushReLU(400, 0.6, -10e-1f, 0.01f);
-	network.PushSoftmax(10, 0.25, -10e-1f, 0.01f);
+	network.PushReLU(800, 0.5, -6e-1f, 0.01f);
+	network.PushSoftmax(10, 0.25, -6e-1f, 0.01f);
 	network.PushOutput(10);
 	network.PrintGeneral();
 
@@ -77,7 +119,7 @@ int train() {
 	int iteration = 50;
 	cout << "Train " << iteration << " times ..." << endl;
 	//network.ReadParams(mnist_file);
-	network.Train(iteration, 0.96);
+	network.Train(iteration, 0.9); // depend on the number of batch_size
 	cout << "End of training ..." << endl;
 
 	//network.SaveParams(mnist_file);
@@ -134,6 +176,10 @@ int train() {
 
 	delete[] train_images;
 	delete[] train_labels;
+
+	delete[] h_train_images_augmented;
+	delete[] h_train_labels_augmented;
+
 	delete[] h_train_images;
 	delete[] h_train_labels;
 

@@ -9,7 +9,8 @@
 
 namespace utils {
 
-void showImage(float* img, int width, int height, int channel) {
+void showImage(float* img, int width, int height, int channel, int offset) {
+	img += offset * width * height * channel;
 	Mat I(height, width, CV_8UC3, Scalar::all(0));
 	for (int i = 0; i < width; i++)
 		for (int j = 0; j < height; j++)

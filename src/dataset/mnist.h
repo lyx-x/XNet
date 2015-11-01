@@ -10,6 +10,8 @@
 
 #include "../model/network.h"
 #include "../utils/read_data.h"
+#include "../utils/data_augmentation.h"
+#include "../utils/image.h"
 
 #include "opencv2/opencv.hpp"
 
