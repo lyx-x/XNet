@@ -25,7 +25,7 @@ namespace layer {
 
 class Layer {
 public:
-	Layer(float alpha = 0);
+	Layer(float alpha = 0, float momentum = 0.9f, float weight_decay = 0);
 	virtual ~Layer();
 
 	// three virtual method that all layers should have
@@ -47,7 +47,9 @@ public:
 	float* gradient; // gradient of parameters
 	float* gradient_bias; // gradient of bias parameters
 	int batch; // batch size
-	float alpha;
+	float alpha; // learning rate
+	float momentum;
+	float weight_decay;
 	bool isProduction;
 };
 

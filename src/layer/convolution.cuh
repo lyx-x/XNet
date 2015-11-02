@@ -24,7 +24,7 @@ private:
 	float* tmp_diff;
 public:
 	Convolution(Layer* _prev, int n ,int c, int kernel, float alpha,
-			float sigma = 0.01f);
+			float sigma = 0.01f, float momentum = 0.9f, float weight_decay = 0);
 	virtual ~Convolution();
 	void forward(bool train = true);
 	void backward();

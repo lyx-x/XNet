@@ -22,6 +22,8 @@ Network::Network(float* _data, int _data_dim, float* _label, int _label_dim,
 	batch = _batch;
 	data_dim = _data_dim;
 	label_dim = _label_dim;
+	train_error = 100;
+	val_error = 100;
 	callCuda(cudaMalloc(&data, sizeof(float) * data_dim * batch));
 	callCuda(cudaMemcpy(data, h_data, sizeof(float) * data_dim * batch,
 			cudaMemcpyHostToDevice));
@@ -79,6 +81,7 @@ void Network::Train(int iteration, float lambda, bool debug) {
 				//layers[i]->adjust_learning(0.25);
 			layers[i]->adjust_learning(lambda);
 		}
+		// training error
 		if (size > 0) {
 			float* predict = new float[size];
 			offset = 0;
@@ -96,9 +99,19 @@ void Network::Train(int iteration, float lambda, bool debug) {
 			for (int i = 0; i < size; i++)
 				if (abs(h_label[i] - predict[i]) > 0.1)
 					errors++;
-			std::cout << "Train error: " << errors * 100.0 / size << std::endl;
+
+			// adjust the learning rate if the training error stabilizes
+			if ((train_error - errors * 100.0 / size) / train_error < -0.02) {
+				std::cout << "-- Learning rate decreased --" << std::endl;
+				for (int i = layers.size() - 1; i > 0; i--)
+					layers[i]->adjust_learning(0.8f);
+			}
+
+			train_error = errors * 100.0 / size;
+			std::cout << "Train error: " << train_error << std::endl;
 			delete[] predict;
 		}
+		// validation error
 		if (val_size > 0) {
 			float* predict = new float[val_size];
 			offset = 0;
@@ -116,7 +129,8 @@ void Network::Train(int iteration, float lambda, bool debug) {
 			for (int i = 0; i < val_size; i++)
 				if (abs(h_label[size + i] - predict[i]) > 0.1)
 					errors++;
-			std::cout << "Validation error: " << errors * 100.0 / val_size << std::endl;
+			val_error = errors * 100.0 / val_size;
+			std::cout << "Validation error: " << val_error << std::endl;
 			delete[] predict;
 		}
 	}
@@ -133,8 +147,10 @@ void Network::PushOutput(int label_dim) {
 	layers.push_back(output);
 }
 
-void Network::PushConvolution(int c, int kernel, float alpha, float sigma) {
-	Convolution* conv = new Convolution(layers.back(), batch, c, kernel, alpha, sigma);
+void Network::PushConvolution(int c, int kernel, float alpha, float sigma,
+		float momentum, float weight_decay) {
+	Convolution* conv = new Convolution(layers.back(), batch, c, kernel, alpha,
+			sigma, momentum, weight_decay);
 	layers.push_back(conv);
 }
 
@@ -148,13 +164,17 @@ void Network::PushActivation(cudnnActivationMode_t mode) {
 	layers.push_back(activation);
 }
 
-void Network::PushReLU(int output_size, float dropout_rate, float alpha, float sigma) {
-	ReLU* relu = new ReLU(layers.back(), output_size, dropout_rate, alpha, sigma);
+void Network::PushReLU(int output_size, float dropout_rate, float alpha,
+		float sigma, float momentum, float weight_decay) {
+	ReLU* relu = new ReLU(layers.back(), output_size, dropout_rate, alpha,
+			sigma, momentum, weight_decay);
 	layers.push_back(relu);
 }
 
-void Network::PushSoftmax(int output_size, float dropout_rate, float alpha, float sigma) {
-	Softmax* softmax = new Softmax(layers.back(), output_size, dropout_rate, alpha, sigma);
+void Network::PushSoftmax(int output_size, float dropout_rate, float alpha,
+		float sigma, float momentum, float weight_decay) {
+	Softmax* softmax = new Softmax(layers.back(), output_size, dropout_rate, alpha,
+			sigma, momentum, weight_decay);
 	layers.push_back(softmax);
 }
 

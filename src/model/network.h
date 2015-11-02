@@ -39,6 +39,9 @@ private:
 	float* h_label; // label on host
 	int label_dim; // dimension of one label (usually 1)
 	int size, val_size, batch; // whole size of data, batch size
+
+	float train_error;
+	float val_error;
 public:
 	Network(float* data, int data_dim, float* label, int label_dim,
 			int count, int val_size, int _batch);
@@ -47,11 +50,14 @@ public:
 	void Train(int iteration, float lambda = 1, bool debug = false);
 	void PushInput(int c, int h, int w);
 	void PushOutput(int label_dim);
-	void PushConvolution(int c, int kernel, float alpha, float sigma = 0.01f);
+	void PushConvolution(int c, int kernel, float alpha, float sigma = 0.01f,
+			float momentum = 0.9f, float weight_decay = 0);
 	void PushPooling(int size, int stride);
 	void PushActivation(cudnnActivationMode_t mode);
-	void PushReLU(int output_size, float dropout_rate, float alpha, float sigma = 0.01f);
-	void PushSoftmax(int output_size, float dropout_rate, float alpha, float sigma = 0.01f);
+	void PushReLU(int output_size, float dropout_rate, float alpha,
+			float sigma = 0.01f, float momentum = 0.9f, float weight_decay = 0);
+	void PushSoftmax(int output_size, float dropout_rate, float alpha,
+			float sigma = 0.01f, float momentum = 0.9f, float weight_decay = 0);
 	void Pop(); // remove last layer
 
 	void SwitchData(float* h_data, float* h_label, int count);

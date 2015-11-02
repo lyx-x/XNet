@@ -12,7 +12,8 @@ using namespace global;
 namespace layer {
 
 Neuron::Neuron(Layer* _prev, int _output_size, float dropout_rate, float alpha,
-		float sigma): Layer(alpha) {
+		float sigma, float momentum, float weight_decay):
+		Layer(alpha, momentum, weight_decay) {
 	prev = _prev;
 	prev->next = this;
 
@@ -41,6 +42,8 @@ Neuron::Neuron(Layer* _prev, int _output_size, float dropout_rate, float alpha,
 
 	utils::setGpuNormalValue(param, param_size, 0, sigma);
 	utils::setGpuNormalValue(param_bias, param_bias_size, 0, sigma);
+	utils::setGpuValue(gradient, param_size, 0);
+	utils::setGpuValue(gradient_bias, param_bias_size, 0);
 
 	callCuda(cudaMalloc(&one, sizeof(float) * batch));
 	utils::setGpuValue(one, batch, 1);
@@ -74,25 +77,25 @@ void Neuron::forward(bool train) {
 }
 
 void Neuron::backward() {
-	float a = 1;
-	float b = 0;
+	float a = alpha;
+	float b = momentum;
 	backward_activation();
 	callCuda(cublasSgemm(cublasHandle, CUBLAS_OP_N, CUBLAS_OP_T, input_size,
 			output_size, batch, &a, prev->data, input_size, tmp_diff, output_size,
 			&b, gradient, input_size));
 	callCuda(cublasSgemv(cublasHandle, CUBLAS_OP_N, output_size, batch,
 			&a, tmp_diff, output_size, one, 1, &b, gradient_bias, 1));
+	a = 1;
+	b = 0;
 	callCuda(cublasSgemm(cublasHandle, CUBLAS_OP_N, CUBLAS_OP_N, input_size,
 			batch, output_size, &a, param, input_size, tmp_diff, output_size,
 			&b, diff, input_size));
 }
 
 void Neuron::update() {
-	//utils::printGpuMatrix(prev->data, 10, 1, 10, 8);
-	//utils::printGpuMatrix(param, 10, 1, 10, 9);
-	//utils::printGpuMatrix(gradient, 10, 1, 10, 10);
-	callCuda(cublasSaxpy(cublasHandle, param_size, &alpha, gradient, 1, param, 1));
-	callCuda(cublasSaxpy(cublasHandle, param_bias_size,	&alpha,
+	float a = 1 - weight_decay;
+	callCuda(cublasSaxpy(cublasHandle, param_size, &a, gradient, 1, param, 1));
+	callCuda(cublasSaxpy(cublasHandle, param_bias_size,	&a,
 			gradient_bias, 1, param_bias, 1));
 }
 

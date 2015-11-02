@@ -25,7 +25,8 @@ protected:
 	void dropout(bool train);
 public:
 	// data is output_size * batch
-	Neuron(Layer* _prev, int _output_size, float dropout_rate, float alpha, float sigma = 0.01f);
+	Neuron(Layer* _prev, int _output_size, float dropout_rate, float alpha,
+			float sigma = 0.01f, float momentum = 0.9f, float weight_decay = 0);
 	virtual ~Neuron();
 	void forward(bool train = true);
 	virtual void forward_activation() = 0; // support different activation function
