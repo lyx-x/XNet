@@ -72,7 +72,7 @@ int train() {
 	// train the model
 	int iteration = 24;
 	cout << "Train " << iteration << " times ..." << endl;
-	network.Train(iteration, 0.95);
+	network.Train(iteration);
 	//network.SaveParams(cifar10_file);
 	cout << "End of training ..." << endl;
 

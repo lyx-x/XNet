@@ -114,7 +114,7 @@ int train() {
 		}
 
 		// train the network several time
-		network.Train(10, 1, false);
+		network.Train(10, false);
 	}
 
 	//delete[] h_test_labels_predict;

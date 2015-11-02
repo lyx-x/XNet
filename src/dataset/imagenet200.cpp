@@ -85,7 +85,7 @@ int train() {
 	network.PushOutput(label_count);
 	network.PrintGeneral();
 
-	network.Train(10, 1, true);
+	network.Train(10, true);
 
 	delete[] h_train_images;
 	delete[] h_train_labels;

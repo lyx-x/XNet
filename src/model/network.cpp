@@ -24,6 +24,7 @@ Network::Network(float* _data, int _data_dim, float* _label, int _label_dim,
 	label_dim = _label_dim;
 	train_error = 100;
 	val_error = 100;
+	lambda = 1;
 	callCuda(cudaMalloc(&data, sizeof(float) * data_dim * batch));
 	callCuda(cudaMemcpy(data, h_data, sizeof(float) * data_dim * batch,
 			cudaMemcpyHostToDevice));
@@ -41,9 +42,9 @@ Network::~Network() {
 		delete l;
 }
 
-void Network::Train(int iteration, float lambda, bool debug) {
+void Network::Train(int iteration, bool debug) {
 	// train the network multiple times
-	for (int k = 0; k < iteration; k++) {
+	for (int k = 0; k < iteration && lambda > 1e-4; k++) {
 		/*
 		for (int i = layers.size() - 1; i > 0; i--) {
 			if (layers[i]->param_size != 0)
@@ -76,11 +77,7 @@ void Network::Train(int iteration, float lambda, bool debug) {
 			}
 			offset += batch;
 		}
-		for (int i = layers.size() - 1; i > 0; i--) {
-			//if (k == 1)
-				//layers[i]->adjust_learning(0.25);
-			layers[i]->adjust_learning(lambda);
-		}
+
 		// training error
 		if (size > 0) {
 			float* predict = new float[size];
@@ -100,17 +97,11 @@ void Network::Train(int iteration, float lambda, bool debug) {
 				if (abs(h_label[i] - predict[i]) > 0.1)
 					errors++;
 
-			// adjust the learning rate if the training error stabilizes
-			if ((train_error - errors * 100.0 / size) / train_error < -0.02) {
-				std::cout << "-- Learning rate decreased --" << std::endl;
-				for (int i = layers.size() - 1; i > 0; i--)
-					layers[i]->adjust_learning(0.8f);
-			}
-
 			train_error = errors * 100.0 / size;
 			std::cout << "Train error: " << train_error << std::endl;
 			delete[] predict;
 		}
+
 		// validation error
 		if (val_size > 0) {
 			float* predict = new float[val_size];
@@ -129,8 +120,19 @@ void Network::Train(int iteration, float lambda, bool debug) {
 			for (int i = 0; i < val_size; i++)
 				if (abs(h_label[size + i] - predict[i]) > 0.1)
 					errors++;
+
+			float prev_error = val_error;
 			val_error = errors * 100.0 / val_size;
 			std::cout << "Validation error: " << val_error << std::endl;
+
+			// adjust the learning rate if the validation error stabilizes
+			if ((prev_error - val_error) / prev_error < -0.01) {
+				lambda *= 0.75f;
+				std::cout << "-- Learning rate decreased --" << std::endl;
+				for (int i = layers.size() - 1; i > 0; i--)
+					layers[i]->adjust_learning(0.75f);
+			}
+
 			delete[] predict;
 		}
 	}

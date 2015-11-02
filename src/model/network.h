@@ -42,12 +42,13 @@ private:
 
 	float train_error;
 	float val_error;
+	float lambda;
 public:
 	Network(float* data, int data_dim, float* label, int label_dim,
 			int count, int val_size, int _batch);
 	virtual ~Network();
 	// train the network
-	void Train(int iteration, float lambda = 1, bool debug = false);
+	void Train(int iteration, bool debug = false);
 	void PushInput(int c, int h, int w);
 	void PushOutput(int label_dim);
 	void PushConvolution(int c, int kernel, float alpha, float sigma = 0.01f,
