@@ -16,12 +16,12 @@ int train() {
 	string extension = ".bin";
 	string test_file = "../Data/CIFAR10/test_batch.bin";
 
-	int channels = 3;
+	int channel = 3;
 	int width = 32, height = 32;
 	int total_size = 5e4;
 	int test_size = 1e4;
 
-	int data_dim = channels * width * height;
+	int data_dim = channel * width * height;
 	int label_dim = 1;
 
 	uint8_t* train = new uint8_t[total_size * (data_dim + label_dim)];
@@ -48,7 +48,7 @@ int train() {
 		for (int j = 0; j < data_dim; j++)
 			h_train_images[i * data_dim + j] = (float)train[offset + 1 + j] / 255.0f;
 		utils::flipImage(h_train_images + i * data_dim,
-				h_train_images + i * data_dim + augmentation, width, height, channels);
+				h_train_images + i * data_dim + augmentation, width, height, channel);
 		offset += data_dim + label_dim;
 	}
 	//utils::showImage(h_train_images + 32 * 32 * 3 * 100, 32 ,32 ,3);
@@ -57,22 +57,22 @@ int train() {
 
 	model::Network network(h_train_images, data_dim, h_train_labels, label_dim,
 			train_size, validation_size, batch_size);
-	network.PushInput(channels, height, width); // 3 32 32
-	network.PushConvolution(48, 5, -6e-2f, 0.01f, 0.9f, 0.00005f);
+	network.PushInput(channel, height, width); // 3 32 32
+	network.PushConvolution(48, 5, -8e-2f, 0.01f, 0.9f, 0.0005f);
 	network.PushActivation(CUDNN_ACTIVATION_RELU);
 	network.PushPooling(2, 2);
-	network.PushConvolution(32, 3, -6e-2f, 0.01f, 0.9f, 0.00005f);
+	network.PushConvolution(32, 3, -8e-2f, 0.01f, 0.9f, 0.0005f);
 	network.PushActivation(CUDNN_ACTIVATION_RELU);
 	network.PushPooling(2, 2);
-	network.PushReLU(800, 0.5, -4e-2f, 0.01f, 0.9f, 0.00005f);
-	network.PushSoftmax(10, 0.25, -4e-2f, 0.01f, 0.9f, 0.00005f);
+	network.PushReLU(800, 0.5, -6e-2f, 0.01f, 0.9f, 0.0005f);
+	network.PushSoftmax(10, 0.25, -6e-2f, 0.01f, 0.9f, 0.0005f);
 	network.PushOutput(10);
 	network.PrintGeneral();
 
 	// train the model
 	int iteration = 24;
 	cout << "Train " << iteration << " times ..." << endl;
-	network.Train(iteration);
+	network.Train(iteration, 0.001, 0.6);
 	//network.SaveParams(cifar10_file);
 	cout << "End of training ..." << endl;
 
