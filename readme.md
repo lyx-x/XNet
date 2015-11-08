@@ -22,12 +22,13 @@ All suggestions are welcomed and hope that this piece of code is useful to you.
   * Adjustable layer dimension 
   * Adjustable learning rate for each layer
   * Decreasing learning rate
+  * Momentum and weight decay
 * Examples
   * MNIST
     * Test error rate: 0.5% - 1%
-    * Real-time recognition on your camera with OpenCV
+    * Real-time recognition on camera with OpenCV
   * CIFAR-10
-    * Test error rate: around 35%
+    * Test error rate: around 25% (with data augmentation)
 
 ## How to use
 

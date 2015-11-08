@@ -18,6 +18,7 @@
 
 #include "../model/network.h"
 #include "../utils/read_data.h"
+#include "../utils/image.h"
 
 using namespace std;
 

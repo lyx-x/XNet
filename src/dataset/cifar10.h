@@ -12,9 +12,6 @@
 #include "../utils/read_data.h"
 #include "../utils/image.h"
 
-#include "opencv2/opencv.hpp"
-
-using namespace cv;
 using namespace std;
 
 namespace cifar10 {

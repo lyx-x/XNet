@@ -29,4 +29,19 @@ void flipImage(float* src, float* dest, int width, int height, int channel) {
 						src[width * height * c + width * j + (width - i - 1)];
 }
 
+void translationAugmentation(float* old_m, int old_n, int old_w, int old_h,
+		int delta, float* m, int n, int c, int w, int h) {
+	int _k = 0;
+	for (int i = 0; i <= delta; i += delta)
+		for (int j = 0; j <= delta; j += delta)
+			for (int k = 0; k < old_n; k++)
+				for (int x = 0; x < c; x++)
+					for (int y = 0; y < h; y++)
+						for (int z = 0; z < w; z++) {
+							m[_k] = old_m[k * c * old_w * old_h + x * old_w * old_h +
+							              (y + i) * old_w + (z + j)];
+							_k++;
+						}
+}
+
 }

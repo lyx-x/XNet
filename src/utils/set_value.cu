@@ -36,11 +36,6 @@ void setGpuValue(float* x, int n, float val) {
 	setValue<<<blocksPerGrid, threadsPerBlock>>>(x, n, val);
 }
 
-void setGpuUniformValue(float* x, int n, int input_size, int output_size) {
-	float epsilon = std::sqrt(6.0 / (input_size + output_size));
-	setGpuUniformValue(x, n, epsilon);
-}
-
 void setGpuUniformValue(float* x, int n, float epsilon) {
 	int threadsPerBlock = 256;
 	int blocksPerGrid = (n + threadsPerBlock - 1) / threadsPerBlock;
@@ -58,12 +53,6 @@ void setGpuNormalValue(float* x, int n, float mean, float stddev) {
 	curandSetPseudoRandomGeneratorSeed(generator, time(NULL));
 	curandGenerateNormal(generator, x, n, mean, stddev);
 	curandDestroyGenerator(generator);
-}
-
-void setGpuNormalValue(float* x, int n, int scale) {
-	if (scale == -1)
-		scale = n;
-	setGpuNormalValue(x, n, 0, sqrt(0.3f / scale));
 }
 
 void dropGpuValue(float *x, int n, float dropout_rate) {

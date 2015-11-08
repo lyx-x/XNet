@@ -1,12 +1,15 @@
 /*
- * layer.cuh
+ * layer.h
+ *
+ * Layer class, this class is abstract, it provides basic layer members like
+ * data and some methods. All layers should extend this class.
  *
  *  Created on: Sep 20, 2015
  *      Author: lyx
  */
 
-#ifndef LAYER_CUH_
-#define LAYER_CUH_
+#ifndef LAYER_H_
+#define LAYER_H_
 
 #include <iostream>
 #include <sstream>
@@ -32,6 +35,7 @@ public:
 	virtual void forward(bool train = true) = 0;
 	virtual void backward() = 0;
 	virtual void update() = 0;
+
 	void adjust_learning(float scale);
 
 	Layer* prev; // previous layer
@@ -48,10 +52,9 @@ public:
 	float* gradient_bias; // gradient of bias parameters
 	int batch; // batch size
 	float alpha; // learning rate
-	float momentum;
-	float weight_decay;
-	bool isProduction;
+	float momentum; // momentum of gradient
+	float weight_decay; // weight decay rate
 };
 
 } /* namespace layer */
-#endif /* LAYER_CUH_ */
+#endif /* LAYER_H_ */

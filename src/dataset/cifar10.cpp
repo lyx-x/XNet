@@ -9,20 +9,22 @@
 
 namespace cifar10 {
 
-string cifar10_file = "params/cifar10/";
+const int label_count = 10;
+const int label_dim = 1;
+
+const int channel = 3;
+const int width = 32, height = 32;
+const int data_dim = channel * width * height;
+
+const int total_size = 5e4;
+const int test_size = 1e4;
+
+const string cifar10_file = "params/cifar10/";
 
 int train() {
 	string dir = "../Data/CIFAR10/data_batch_";
 	string extension = ".bin";
 	string test_file = "../Data/CIFAR10/test_batch.bin";
-
-	int channel = 3;
-	int width = 32, height = 32;
-	int total_size = 5e4;
-	int test_size = 1e4;
-
-	int data_dim = channel * width * height;
-	int label_dim = 1;
 
 	uint8_t* train = new uint8_t[total_size * (data_dim + label_dim)];
 	for (int i = 1; i <= 5; i++) {
@@ -34,9 +36,9 @@ int train() {
 
 	int validation_size = 1e4;
 	int train_size = total_size * 2 - validation_size; // data size
-	int batch_size = 50;
 
 	// use flip as data augmentation
+
 	float* h_train_images = new float[total_size * data_dim * 2];
 	float* h_train_labels = new float[total_size * label_dim * 2];
 
@@ -51,28 +53,33 @@ int train() {
 				h_train_images + i * data_dim + augmentation, width, height, channel);
 		offset += data_dim + label_dim;
 	}
-	//utils::showImage(h_train_images + 32 * 32 * 3 * 100, 32 ,32 ,3);
-	//utils::showImage(h_train_images + 32 * 32 * 3 * 50100, 32 ,32 ,3);
+
 	//utils::showImage(h_train_images + 32 * 32 * 3 * 85000, 32 ,32 ,3);
+
+	int batch_size = 50;
+	int iteration = 24;
 
 	model::Network network(h_train_images, data_dim, h_train_labels, label_dim,
 			train_size, validation_size, batch_size);
 	network.PushInput(channel, height, width); // 3 32 32
-	network.PushConvolution(48, 5, -8e-2f, 0.01f, 0.9f, 0.0005f);
+	network.PushConvolution(48, 3, -8e-2f, 0.015f, 0.9f, 0.0005f);
 	network.PushActivation(CUDNN_ACTIVATION_RELU);
 	network.PushPooling(2, 2);
-	network.PushConvolution(32, 3, -8e-2f, 0.01f, 0.9f, 0.0005f);
+	network.PushConvolution(64, 3, -8e-2f, 0.015f, 0.9f, 0.0005f);
 	network.PushActivation(CUDNN_ACTIVATION_RELU);
 	network.PushPooling(2, 2);
-	network.PushReLU(800, 0.5, -6e-2f, 0.01f, 0.9f, 0.0005f);
-	network.PushSoftmax(10, 0.25, -6e-2f, 0.01f, 0.9f, 0.0005f);
-	network.PushOutput(10);
+	network.PushConvolution(64, 3, -8e-2f, 0.015f, 0.9f, 0.0005f);
+	network.PushActivation(CUDNN_ACTIVATION_RELU);
+	network.PushPooling(2, 2);
+	network.PushReLU(800, 0.5, -6e-2f, 0.015f, 0.9f, 0.0005f);
+	network.PushSoftmax(label_count, 0.25, -6e-2f, 0.015f, 0.9f, 0.0005f);
+	network.PushOutput(label_count);
 	network.PrintGeneral();
 
 	// train the model
-	int iteration = 24;
+
 	cout << "Train " << iteration << " times ..." << endl;
-	network.Train(iteration, 0.001, 0.6);
+	network.Train(iteration, -0.001, 0.6);
 	//network.SaveParams(cifar10_file);
 	cout << "End of training ..." << endl;
 
@@ -93,6 +100,7 @@ int train() {
 	}
 
 	// test the model
+
 	network.SwitchData(h_test_images, h_test_labels, test_size);
 
 	cout << "Testing ..." << endl;
