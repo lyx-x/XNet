@@ -58,14 +58,14 @@ int train() {
 	model::Network network(h_train_images, data_dim, h_train_labels, label_dim,
 			train_size, validation_size, batch_size);
 	network.PushInput(channels, height, width); // 3 32 32
-	network.PushConvolution(48, 5, -72e-2f);
+	network.PushConvolution(48, 5, -6e-2f, 0.01f, 0.9f, 0.00005f);
 	network.PushActivation(CUDNN_ACTIVATION_RELU);
 	network.PushPooling(2, 2);
-	network.PushConvolution(32, 3, -72e-2f);
+	network.PushConvolution(32, 3, -6e-2f, 0.01f, 0.9f, 0.00005f);
 	network.PushActivation(CUDNN_ACTIVATION_RELU);
 	network.PushPooling(2, 2);
-	network.PushReLU(800, 0.5, -36e-2f);
-	network.PushSoftmax(10, 0.25, -36e-2f);
+	network.PushReLU(800, 0.5, -4e-2f, 0.01f, 0.9f, 0.00005f);
+	network.PushSoftmax(10, 0.25, -4e-2f, 0.01f, 0.9f, 0.00005f);
 	network.PushOutput(10);
 	network.PrintGeneral();
 

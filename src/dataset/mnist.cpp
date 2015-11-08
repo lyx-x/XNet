@@ -97,7 +97,7 @@ int train() {
 	*/
 
 	// build LeNet
-	int batch_size = 50;
+	int batch_size = 100;
 	cout << "Batch size: " << batch_size << endl;
 	/*
 	model::Network network(h_train_images_augmented, data_dim_augmented,
@@ -116,7 +116,7 @@ int train() {
 	network.PushConvolution(40, 5, -10e-2f, 0.01f, 0.9f, 0.00005f);
 	network.PushActivation(CUDNN_ACTIVATION_RELU);
 	network.PushPooling(2, 2);
-	network.PushReLU(800, 0.6, -10e-2f, 0.01f, 0.9f, 0.00005f);
+	network.PushReLU(400, 0.6, -10e-2f, 0.01f, 0.9f, 0.00005f);
 	network.PushSoftmax(10, 0.25, -10e-2f, 0.01f, 0.9f, 0.00005f);
 	network.PushOutput(10);
 	network.PrintGeneral();

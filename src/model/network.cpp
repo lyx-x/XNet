@@ -44,7 +44,7 @@ Network::~Network() {
 
 void Network::Train(int iteration, bool debug) {
 	// train the network multiple times
-	for (int k = 0; k < iteration && lambda > 1e-4; k++) {
+	for (int k = 0; k < iteration && lambda > 5e-3; k++) {
 		/*
 		for (int i = layers.size() - 1; i > 0; i--) {
 			if (layers[i]->param_size != 0)
@@ -126,11 +126,11 @@ void Network::Train(int iteration, bool debug) {
 			std::cout << "Validation error: " << val_error << std::endl;
 
 			// adjust the learning rate if the validation error stabilizes
-			if ((prev_error - val_error) / prev_error < -0.01) {
-				lambda *= 0.75f;
+			if ((prev_error - val_error) / prev_error < 0.001) {
+				lambda *= 0.6f;
 				std::cout << "-- Learning rate decreased --" << std::endl;
 				for (int i = layers.size() - 1; i > 0; i--)
-					layers[i]->adjust_learning(0.75f);
+					layers[i]->adjust_learning(0.6f);
 			}
 
 			delete[] predict;
