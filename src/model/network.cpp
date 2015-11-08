@@ -42,15 +42,15 @@ Network::~Network() {
 		delete l;
 }
 
-void Network::Train(int iteration, bool debug) {
+void Network::Train(int iteration, float half_time, float half_rate, bool debug) {
 	// train the network multiple times
 	for (int k = 0; k < iteration && lambda > 5e-3; k++) {
-		/*
-		for (int i = layers.size() - 1; i > 0; i--) {
-			if (layers[i]->param_size != 0)
-				utils::printGpuMax(layers[i]->param, layers[i]->param_size);
-		}
-		*/
+		if (debug)
+			for (int i = layers.size() - 1; i > 0; i--) {
+				if (layers[i]->param_size != 0)
+					utils::printGpuMax(layers[i]->param, layers[i]->param_size);
+			}
+
 		// divide the training set to small pieces
 		int offset = 0;
 		std::cout << "Iteration " << k + 1 << std::endl;
@@ -65,11 +65,13 @@ void Network::Train(int iteration, bool debug) {
 				layers[i]->forward();
 				//utils::printGpuMatrix(layers[i]->data, 10, 1, 10, 6);
 			}
+			/*
 			if (debug) {
 				std::cout << h_label[offset * label_dim] << std::endl;
 				utils::printGpuMatrix(layers[layers.size() - 2]->data,
 						10, 1, 10, 4);
 			}
+			*/
 			// back propagation
 			for (int i = layers.size() - 1; i > 0; i--) {
 				layers[i]->backward();
@@ -126,11 +128,11 @@ void Network::Train(int iteration, bool debug) {
 			std::cout << "Validation error: " << val_error << std::endl;
 
 			// adjust the learning rate if the validation error stabilizes
-			if ((prev_error - val_error) / prev_error < 0.001) {
-				lambda *= 0.6f;
+			if ((prev_error - val_error) / prev_error < half_time) {
+				lambda *= half_rate;
 				std::cout << "-- Learning rate decreased --" << std::endl;
 				for (int i = layers.size() - 1; i > 0; i--)
-					layers[i]->adjust_learning(0.6f);
+					layers[i]->adjust_learning(half_rate);
 			}
 
 			delete[] predict;
