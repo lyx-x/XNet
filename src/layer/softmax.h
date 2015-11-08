@@ -1,25 +1,25 @@
 /*
- * relu.cuh
+ * softmax.cuh
  *
  *  Created on: Sep 20, 2015
  *      Author: lyx
  */
 
-#ifndef RELU_CUH_
-#define RELU_CUH_
+#ifndef SOFTMAX_CUH_
+#define SOFTMAX_CUH_
 
-#include "neuron.cuh"
+#include "neuron.h"
 
 namespace layer {
 
-class ReLU: public Neuron {
+class Softmax: public Neuron {
 public:
-	ReLU(Layer* _prev, int _output_size, float dropout_rate, float alpha,
+	Softmax(Layer* _prev, int _output_size, float dropout_rate, float alpha,
 			float sigma = 0.01f, float momentum = 0.9f, float weight_decay = 0);
-	virtual ~ReLU();
+	virtual ~Softmax();
 	void forward_activation();
 	void backward_activation();
 };
 
 } /* namespace layer */
-#endif /* RELU_CUH_ */
+#endif /* SOFTMAX_CUH_ */

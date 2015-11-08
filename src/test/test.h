@@ -13,7 +13,7 @@
 
 #include "../utils/read_data.h"
 #include "../utils/write_data.h"
-#include "../utils/print.cuh"
+#include "../utils/print.h"
 #include "../utils/utils.h"
 
 namespace test {

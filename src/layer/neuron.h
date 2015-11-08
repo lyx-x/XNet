@@ -8,7 +8,7 @@
 #ifndef NEURON_CUH_
 #define NEURON_CUH_
 
-#include "layer.cuh"
+#include "layer.h"
 
 namespace layer {
 

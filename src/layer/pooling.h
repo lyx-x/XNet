@@ -8,7 +8,7 @@
 #ifndef POOLING_CUH_
 #define POOLING_CUH_
 
-#include "layer.cuh"
+#include "layer.h"
 
 namespace layer {
 

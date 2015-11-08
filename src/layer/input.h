@@ -8,7 +8,7 @@
 #ifndef INPUT_CUH_
 #define INPUT_CUH_
 
-#include "layer.cuh"
+#include "layer.h"
 
 namespace layer {
 

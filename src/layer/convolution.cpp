@@ -5,7 +5,7 @@
  *      Author: lyx
  */
 
-#include "convolution.cuh"
+#include "convolution.h"
 
 using namespace global;
 

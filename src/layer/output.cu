@@ -5,7 +5,7 @@
  *      Author: lyx
  */
 
-#include "output.cuh"
+#include "output.h"
 
 using namespace global;
 

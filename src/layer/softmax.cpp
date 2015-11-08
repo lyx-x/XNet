@@ -5,7 +5,7 @@
  *      Author: lyx
  */
 
-#include "softmax.cuh"
+#include "softmax.h"
 
 using namespace global;
 

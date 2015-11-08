@@ -5,7 +5,7 @@
  *      Author: lyx
  */
 
-#include "input.cuh"
+#include "input.h"
 
 namespace layer {
 

@@ -8,7 +8,7 @@
 #ifndef CONVOLUTION_CUH_
 #define CONVOLUTION_CUH_
 
-#include "layer.cuh"
+#include "layer.h"
 
 namespace layer {
 

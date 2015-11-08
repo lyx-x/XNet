@@ -5,7 +5,7 @@
  *      Author: lyx
  */
 
-#include "relu.cuh"
+#include "relu.h"
 
 using namespace global;
 

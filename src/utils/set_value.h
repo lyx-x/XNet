@@ -18,7 +18,7 @@
 
 #include "utils.h"
 #include "global.h"
-#include "print.cuh"
+#include "print.h"
 
 namespace utils {
 

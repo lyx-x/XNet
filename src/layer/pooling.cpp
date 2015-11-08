@@ -5,7 +5,7 @@
  *      Author: lyx
  */
 
-#include "pooling.cuh"
+#include "pooling.h"
 
 using namespace global;
 

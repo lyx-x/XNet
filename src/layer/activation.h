@@ -8,7 +8,7 @@
 #ifndef ACTIVATION_H_
 #define ACTIVATION_H_
 
-#include "layer.cuh"
+#include "layer.h"
 
 namespace layer {
 

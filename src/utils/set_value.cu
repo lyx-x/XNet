@@ -5,7 +5,7 @@
  *      Author: lyx
  */
 
-#include "set_value.cuh"
+#include "set_value.h"
 
 using namespace global;
 

@@ -21,14 +21,14 @@
 #include <typeinfo>
 #include <cmath>
 
-#include "../layer/layer.cuh"
-#include "../layer/input.cuh"
-#include "../layer/output.cuh"
-#include "../layer/convolution.cuh"
-#include "../layer/pooling.cuh"
+#include "../layer/layer.h"
+#include "../layer/input.h"
+#include "../layer/output.h"
+#include "../layer/convolution.h"
+#include "../layer/pooling.h"
 #include "../layer/activation.h"
-#include "../layer/relu.cuh"
-#include "../layer/softmax.cuh"
+#include "../layer/relu.h"
+#include "../layer/softmax.h"
 
 #include "../utils/read_data.h"
 #include "../utils/write_data.h"

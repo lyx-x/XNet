@@ -8,7 +8,7 @@
 #ifndef OUTPUT_CUH_
 #define OUTPUT_CUH_
 
-#include "layer.cuh"
+#include "layer.h"
 
 namespace layer {
 

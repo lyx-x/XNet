@@ -17,8 +17,8 @@
 #include <cudnn.h>
 
 #include "../utils/global.h"
-#include "../utils/set_value.cuh"
-#include "../utils/print.cuh"
+#include "../utils/set_value.h"
+#include "../utils/print.h"
 #include "../utils/utils.h"
 
 namespace layer {

@@ -5,7 +5,7 @@
  *      Author: lyx
  */
 
-#include "print.cuh"
+#include "print.h"
 
 namespace utils {
 

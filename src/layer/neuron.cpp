@@ -5,7 +5,7 @@
  *      Author: lyx
  */
 
-#include "neuron.cuh"
+#include "neuron.h"
 
 using namespace global;
 

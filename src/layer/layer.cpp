@@ -5,7 +5,7 @@
  *      Author: lyx
  */
 
-#include "layer.cuh"
+#include "layer.h"
 
 namespace layer {
 
