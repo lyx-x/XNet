@@ -85,7 +85,7 @@ int train() {
 
 	cout << "Train " << iteration << " times ..." << endl;
 	//network.ReadParams(mnist_file);
-	network.Train(iteration, 0.01, 0.5); // depend on the number of batch_size
+	network.Train(iteration, 0.01, 0.5, 0.99); // depend on the number of batch_size
 	cout << "End of training ..." << endl;
 
 	//network.SaveParams(mnist_file);

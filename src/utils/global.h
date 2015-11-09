@@ -1,6 +1,8 @@
 /*
  * global.h
  *
+ * Global instances such as CUDA handle
+ *
  *  Created on: Sep 20, 2015
  *      Author: lyx
  */

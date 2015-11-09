@@ -7,8 +7,11 @@
 using namespace std;
 using namespace cv;
 
-const int width = 64;
-const int height = 64;
+const int crop_size = 8;
+const int crop_step = 4;
+
+const int width = 64 - crop_size;
+const int height = 64 - crop_size;
 const int channel = 3;
 const int data_dim = width * height * channel;
 
@@ -16,7 +19,7 @@ vector<string> label_string;
 vector<int> image_countdown;
 
 const string root = "/home/lyx/workspace/cuda/Data/ImageNet200/";
-const string wnid_path = root + "wnids.txt";
+const string wnid_path = root + "wnids_10.txt";
 
 string to_train_path(int label, int number = -1) {
     return root + "train/" + label_string[label] + "/images/" +
@@ -43,8 +46,13 @@ void get_train_images(int argc, char** argv) {
         image_per_category = atoi(argv[3]);
     }
 
+    int augmented_rate = (crop_size / crop_step + 1) * (crop_size / crop_step + 1);
+
     int data_size = data_dim * label_count * image_per_category;
     int label_size = label_count * image_per_category;
+
+    data_size *= augmented_rate;
+    label_size *= augmented_rate;
 
     ifstream wnid_file(wnid_path);
     string tmp;
@@ -62,18 +70,27 @@ void get_train_images(int argc, char** argv) {
     while (!label_string.empty()) {
         uint8_t category = get_rand(label_string.size());
         int image = image_countdown[category];
-        Mat m = imread(to_train_path(category, image));
-        assert(data_dim == m.cols * m.rows * m.elemSize());
-        int _index = index * data_dim;
-        for (int i = 0; i < channel; i++)
-            for (int j = 0; j < height; j++)
-                for (int k = 0; k < width; k++) {
-                    Vec3b pixel = m.at<Vec3b>(j, k);
-                    bin_images[_index] = (uint8_t)pixel[i];
-                    _index++;
-                }
-        bin_labels[index] = category;
-        m.release();
+        Mat _m = imread(to_train_path(category, image));
+        assert(data_dim == (_m.cols - crop_size) * (_m.rows - crop_size) * _m.elemSize());
+        for (int h = 0; h <= crop_size; h += crop_step)
+            for (int w = 0; w <= crop_size; w += crop_step) {
+                Mat m;
+                if (rand() % 2 == 0)
+                    m = _m.clone();
+                else
+                    flip(_m, m, 1);
+                int _index = data_dim * (index + (w / crop_step * (crop_size / crop_step + 1) + h / crop_step) * label_count * image_per_category);
+                for (int i = 0; i < channel; i++)
+                    for (int j = 0; j < height; j++)
+                        for (int k = 0; k < width; k++) {
+                            Vec3b pixel = m.at<Vec3b>(j + h, k + w);
+                            bin_images[_index] = (uint8_t) pixel[i];
+                            _index++;
+                        }
+                bin_labels[index + (w / crop_step * (crop_size / crop_step + 1) + h / crop_step) * label_count * image_per_category] = category;
+                m.release();
+            }
+        _m.release();
         if (image == 0) {
             label_string.erase(label_string.begin() + category);
             image_countdown.erase(image_countdown.begin() + category);

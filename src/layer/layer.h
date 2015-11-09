@@ -36,7 +36,7 @@ public:
 	virtual void backward() = 0;
 	virtual void update() = 0;
 
-	void adjust_learning(float scale);
+	void adjust_learning(float scale); // change the learning rate
 
 	Layer* prev; // previous layer
 	Layer* next; // next layer

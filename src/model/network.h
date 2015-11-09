@@ -75,10 +75,11 @@ public:
 	 * iteration: number of epoch
 	 * half_time: threshold for changing the learning rate
 	 * half_rate: learning rate adjustment
+	 * step_decrease: decrease learning rate by each batch
 	 * debug: debug mode (print some extra information)
 	 */
 	void Train(int iteration, float half_time = 0, float half_rate = 0.5,
-			bool debug = false);
+			float step_decrease = 1, bool debug = false);
 
 	/*
 	 * Insert input layer (should be called at first)

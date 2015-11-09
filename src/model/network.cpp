@@ -7,8 +7,6 @@
 
 #include "network.h"
 
-#define label_count 10
-
 using namespace layer;
 
 namespace model {
@@ -42,8 +40,11 @@ Network::~Network() {
 		delete l;
 }
 
-void Network::Train(int iteration, float half_time, float half_rate, bool debug) {
+void Network::Train(int iteration, float half_time, float half_rate,
+		float step_decrease, bool debug) {
+
 	// train the network multiple times
+
 	for (int k = 0; k < iteration && lambda > 5e-3; k++) {
 		if (debug)
 			for (int i = layers.size() - 1; i > 0; i--) {
@@ -52,35 +53,38 @@ void Network::Train(int iteration, float half_time, float half_rate, bool debug)
 			}
 
 		// divide the training set to small pieces
+
 		int offset = 0;
 		std::cout << "Iteration " << k + 1 << std::endl;
 		for (int b = 0; b < size / batch; b++) {
+
 			// choose a new piece and its labels
+
 			callCuda(cudaMemcpy(data, h_data + offset * data_dim,
 					sizeof(float) * data_dim * batch, cudaMemcpyHostToDevice));
 			callCuda(cudaMemcpy(label, h_label + offset * label_dim,
 					sizeof(float) * label_dim * batch, cudaMemcpyHostToDevice));
+
 			// forward propagation
-			for (int i = 0; i < layers.size() - 1; i++) {
+
+			for (int i = 0; i < layers.size() - 1; i++)
 				layers[i]->forward();
-				//utils::printGpuMatrix(layers[i]->data, 10, 1, 10, 6);
-			}
-			/*
-			if (debug) {
-				std::cout << h_label[offset * label_dim] << std::endl;
-				utils::printGpuMatrix(layers[layers.size() - 2]->data,
-						10, 1, 10, 4);
-			}
-			*/
+
 			// back propagation
+
 			for (int i = layers.size() - 1; i > 0; i--) {
 				layers[i]->backward();
 				layers[i]->update(); // update the parameters
 			}
 			offset += batch;
+
 		}
 
+		for (int i = layers.size() - 1; i > 0; i--)
+			layers[i]->adjust_learning(step_decrease);
+
 		// training error
+
 		if (size > 0) {
 			float* predict = new float[size];
 			offset = 0;
@@ -105,6 +109,7 @@ void Network::Train(int iteration, float half_time, float half_rate, bool debug)
 		}
 
 		// validation error
+
 		if (val_size > 0) {
 			float* predict = new float[val_size];
 			offset = 0;
@@ -128,6 +133,7 @@ void Network::Train(int iteration, float half_time, float half_rate, bool debug)
 			std::cout << "Validation error: " << val_error << std::endl;
 
 			// adjust the learning rate if the validation error stabilizes
+
 			if ((prev_error - val_error) / prev_error < half_time) {
 				lambda *= half_rate;
 				std::cout << "-- Learning rate decreased --" << std::endl;

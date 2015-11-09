@@ -1,7 +1,7 @@
 /*
  * xnet.cpp
  *
- * XNet is a simple CuDNN wrapper for deap learning
+ * XNet is a simple CuDNN wrapper for deep learning
  *
  *  Created on: Sep 20, 2015
  *      Author: lyx
@@ -20,9 +20,8 @@ int main() {
 	callCudnn(cudnnCreate(&global::cudnnHandle));
 
 	//mnist::train();
-	cifar10::train();
-	//imagenet::train();
-	//imagenet200::train();
+	//cifar10::train();
+	imagenet200::train();
 
 	callCuda(cublasDestroy(global::cublasHandle));
 	callCudnn(cudnnDestroy(global::cudnnHandle));

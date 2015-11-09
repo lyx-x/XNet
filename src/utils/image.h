@@ -1,6 +1,8 @@
 /*
  * image.h
  *
+ * Image utilities with data augmentation
+ *
  *  Created on: Oct 18, 2015
  *      Author: lyx
  */
@@ -15,7 +17,26 @@ using namespace std;
 
 namespace utils {
 
+/*
+ * Display the image with OpenCV
+ *
+ * img: pointer to images array
+ * width: image width
+ * height: image height
+ * channel: image channel
+ * offset: index of image in the array
+ */
 void showImage(float* img, int width, int height, int channel, int offset = 0);
+
+/*
+ * Flip an image horizontally
+ *
+ * src: pointer of old image
+ * dest: pointer of new image
+ * width: image width
+ * height: image height
+ * channel: image channel
+ */
 void flipImage(float* src, float* dest, int width, int height, int channel);
 
 /*
