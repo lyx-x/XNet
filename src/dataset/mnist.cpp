@@ -7,6 +7,9 @@
 
 #include "mnist.h"
 
+using namespace cv;
+using namespace std;
+
 namespace mnist {
 
 const int label_count = 10;
@@ -14,13 +17,13 @@ const int label_dim = 1;
 
 const int channel = 1;
 
-string mnist_file = "params/mnist/";
+string mnist_file = global::root + "params/mnist/";
 
 int train() {
-	string train_images_path = "../Data/MNIST/train-images.idx3-ubyte";
-	string train_labels_path = "../Data/MNIST/train-labels.idx1-ubyte";
-	string test_images_path = "../Data/MNIST/t10k-images.idx3-ubyte";
-	string test_labels_path = "../Data/MNIST/t10k-labels.idx1-ubyte";
+	string train_images_path = global::root + "../Data/MNIST/train-images.idx3-ubyte";
+	string train_labels_path = global::root + "../Data/MNIST/train-labels.idx1-ubyte";
+	string test_images_path = global::root + "../Data/MNIST/t10k-images.idx3-ubyte";
+	string test_labels_path = global::root + "../Data/MNIST/t10k-labels.idx1-ubyte";
 
 	int width = 28, height = 28;
 	int train_size, test_size;

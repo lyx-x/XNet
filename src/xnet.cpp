@@ -19,9 +19,9 @@ int main() {
 	callCuda(cublasCreate(&global::cublasHandle));
 	callCudnn(cudnnCreate(&global::cudnnHandle));
 
-	//mnist::train();
+	mnist::train();
 	//cifar10::train();
-	imagenet200::train();
+	//imagenet200::train();
 
 	callCuda(cublasDestroy(global::cublasHandle));
 	callCudnn(cudnnDestroy(global::cudnnHandle));

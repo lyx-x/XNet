@@ -12,11 +12,13 @@
 
 #include "cublas_v2.h"
 #include "cudnn.h"
+#include <string>
 
 namespace global {
 
 extern cudnnHandle_t cudnnHandle;
 extern cublasHandle_t cublasHandle;
+    const std::string root = "/home/lyx/workspace/cuda/XNet/";
 
 } /* namespace global */
 #endif /* GLOBAL_H_ */

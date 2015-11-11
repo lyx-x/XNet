@@ -11,11 +11,9 @@
 #include "../model/network.h"
 #include "../utils/read_data.h"
 #include "../utils/image.h"
+#include "../utils/global.h"
 
 #include "opencv2/opencv.hpp"
-
-using namespace cv;
-using namespace std;
 
 namespace mnist {
 
