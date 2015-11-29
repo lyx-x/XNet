@@ -69,6 +69,11 @@ public:
 	virtual ~Network();
 
 	/*
+	 * Get data and label pointer in order to change it from the outside
+	 */
+	std::pair<float*, float*> GetData();
+
+	/*
 	 * Train the network: the start may be slow, need to change sigma of initial
 	 * weight or adjust learning rate, etc.
 	 *
