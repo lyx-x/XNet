@@ -1,3 +1,9 @@
+/*
+ * ImageNet 200 database construction
+ *
+ * This program translate pictures into packaged binary file
+ */
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -7,27 +13,28 @@
 using namespace std;
 using namespace cv;
 
-const int crop_size = 8;
+const int crop_size = 8; // data augmentation
 const int crop_step = 4;
 
 const int width = 64 - crop_size;
 const int height = 64 - crop_size;
-const int channel = 3;
+const int channel = 3; // RGB
 const int data_dim = width * height * channel;
 
 vector<string> label_string;
 vector<int> image_countdown;
 
-const string root = "/home/lyx/workspace/cuda/Data/ImageNet200/";
-const string wnid_path = root + "wnids_10.txt";
+const string root = "/home/lyx/workspace/cuda/Data/ImageNet200/"; // define workspace
+const string wnid_path = root + "wnids_10.txt"; // define categories
 
 string to_train_path(int label, int number = -1) {
     return root + "train/" + label_string[label] + "/images/" +
            label_string[label] + "_" + to_string(number) + ".JPEG";
 }
 
-int get_rand(int max) {
-    return rand() % max;
+template <typename T>
+int get_rand(T max) {
+    return rand() % int(max);
 }
 
 void save_file(string name, uint8_t* data, int size) {
@@ -68,7 +75,7 @@ void get_train_images(int argc, char** argv) {
 
     int index = 0;
     while (!label_string.empty()) {
-        uint8_t category = get_rand(label_string.size());
+        uint8_t category = uint8_t(get_rand(label_string.size())); // random image
         int image = image_countdown[category];
         Mat _m = imread(to_train_path(category, image));
         assert(data_dim == (_m.cols - crop_size) * (_m.rows - crop_size) * _m.elemSize());
@@ -133,6 +140,8 @@ int main(int argc, char** argv) {
         case '2':
             get_test_images(argc, argv);
             break;
+        default:
+            cout << "Error!" << endl;
     }
-    return 0;
+    return EXIT_SUCCESS;
 }

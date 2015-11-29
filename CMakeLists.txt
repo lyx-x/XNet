@@ -7,7 +7,7 @@ INCLUDE(FindCUDA)
 
 INCLUDE_DIRECTORIES(/usr/local/cuda/include)
 
-SET(CUDA_CUDNN_LIBRARIES "/usr/local/cuda/lib64/libcudnn.so")
+SET(CUDA_CUDNN_LIBRARY "/usr/local/cuda/lib64/libcudnn.so")
 
 SET(OpenCV_STATIC OFF)
 FIND_PACKAGE(OpenCV REQUIRED)
@@ -26,4 +26,4 @@ LIST(APPEND CMAKE_CXX_FLAGS "-std=c++0x -O3 -ffast-math ")
 LIST(APPEND CUDA_NVCC_FLAGS --compiler-options -fno-strict-aliasing -lineinfo -use_fast_math -Xptxas -dlcm=cg)
 LIST(APPEND CUDA_NVCC_FLAGS -gencode arch=compute_30,code=sm_30)
 
-TARGET_LINK_LIBRARIES(XNet /usr/local/cuda/lib64/libcudart.so ${OpenCV_LIBS} ${CUDA_CUBLAS_LIBRARIES} ${CUDA_curand_LIBRARY} ${CUDA_CUDNN_LIBRARIES})
+TARGET_LINK_LIBRARIES(XNet ${OpenCV_LIBS} ${CUDA_CUDART_LIBRARIES} ${CUDA_CUBLAS_LIBRARIES} ${CUDA_curand_LIBRARY} ${CUDA_CUDNN_LIBRARY})
